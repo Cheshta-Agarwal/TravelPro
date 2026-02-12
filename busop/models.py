@@ -29,3 +29,12 @@ class Schedule(models.Model):
     def __str__(self):
         return f"{self.bus.bus_number} - {self.route} at {self.departure_time}"
     
+class Seat(models.Model):
+    bus = models.ForeignKey(Bus, on_delete=models.CASCADE)
+    seat_number = models.CharField(max_length=10)
+    is_available = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.bus.bus_number} - Seat {self.seat_number}"
+    
+    
