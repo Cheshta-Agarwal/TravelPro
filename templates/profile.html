@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f4f7;
+        }
+
+        .profile-box {
+            width: 350px;
+            margin: 120px auto;
+            padding: 25px;
+            background: #ffffff;
+            border-radius: 6px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 10px;
+        }
+
+        p {
+            margin: 6px 0;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 15px;
+            text-decoration: none;
+            color: #007bff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="profile-box">
+        <h2>Welcome, {{ user.username }}</h2>
+        <p><strong>Email:</strong> {{ user.email|default:"Not provided" }}</p>
+
+        <a href="{% url 'logout' %}">Logout</a>
+    </div>
+
+</body>
+
+</html>

@@ -1,3 +1,61 @@
-from django.shortcuts import render
+from django.shortcuts import *
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
+from django.conf import settings
 
-# Create your views here.
+
+# Create your views here
+def home(request):
+    return render(request,'index.html')
+
+
+def register(request):
+    error=None
+    if request.method == 'POST':
+        username=request.POST['username']
+        email=request.POST['email']
+        password=request.POST['password']
+    
+        if User.objects.filter(username=username).exists():
+            error="Username already exists"
+        else:
+            user=User.objects.create_user(
+                username=username,
+                email=email,
+                password=password
+            )
+    
+        # send_mail(
+        #     subject='Registraion Successful: Welcome to TravelPro',
+        #     message=f'Hi {username}, your account has been successfully created. Welcome to TravelPro!',
+        #     from_email=settings.EMAIL_HOST_USER,
+        #     recipient_list=[email],
+        #     fail_silently=False,
+
+        # )
+        # return redirect('login')
+    return render(request,'registration.html',{"error":error})
+
+def login(request):
+    if request.method == 'POST':
+        user=authenticate(
+            username=request.POST['username'],
+            password=request.POST['password']
+        )
+    if user:
+        login(request,user)
+        return redirect('index')
+    else:
+        error="Invalid username or password"
+    return render(request, 'login.html',{"error":error})
+
+def logout(request):
+    logout(request)
+    return redirect('index')
+
+@login_required
+def profile(request):
+    return render(request,'profile.html')
+
