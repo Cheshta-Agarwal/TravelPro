@@ -24,3 +24,12 @@ class Payment(models.Model):
     def __str__(self):
         return f"Payment of {self.amount} for {self.booking.passenger_name}"
 
+class user(models.Model):
+    username = models.ForeignKey(User, on_delete=models.CASCADE)
+    password = models.CharField(max_length=18)
+    email = models.EmailField()
+    phone = models.CharField(max_length=15)
+    OTP = models.CharField(max_length=6)
+
+    def __str__(self):
+        return self.username.username
