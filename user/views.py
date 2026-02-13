@@ -17,6 +17,7 @@ def register(request):
         username=request.POST['username']
         email=request.POST['email']
         password=request.POST['password']
+        phone=request.POST['phone']
     
         if User.objects.filter(username=username).exists():
             error="Username already exists"
@@ -27,33 +28,36 @@ def register(request):
                 password=password
             )
     
-        # send_mail(
-        #     subject='Registraion Successful: Welcome to TravelPro',
-        #     message=f'Hi {username}, your account has been successfully created. Welcome to TravelPro!',
-        #     from_email=settings.EMAIL_HOST_USER,
-        #     recipient_list=[email],
-        #     fail_silently=False,
+        send_mail(
+            subject='Registraion Successful: Welcome to TravelPro',
+            message=f'Hi {username}, your account has been successfully created. Welcome to TravelPro!',
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[email],
+            fail_silently=False,
 
-        # )
-        # return redirect('login')
+        )
+        return redirect('login')
     return render(request,'registration.html',{"error":error})
 
 def login_view(request):
-    if request.method == 'POST':
-        user=authenticate(
-            username=request.POST['username'],
-            password=request.POST['password']
-        )
-    if user:
-        login(request,user)
+    if request.method == 'GET':
+        return render(request, 'login.html')
+
+   
+    user = authenticate(
+        username=request.POST.get('username'),
+        password=request.POST.get('password')
+    )
+
+    if user is not None:
+        login(request, user)
         return redirect('index')
     else:
-        error="Invalid username or password"
-    return render(request, 'login.html',{"error":error})
-    
+        error = "Invalid username or password"
+        return render(request, 'login.html', {"error": error})
 
-def logout(request):
-    logout(request)
+def logout_view(request):
+    request.session.flush()
     return redirect('index')
 
 @login_required
