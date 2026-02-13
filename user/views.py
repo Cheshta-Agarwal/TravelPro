@@ -38,7 +38,7 @@ def register(request):
         # return redirect('login')
     return render(request,'registration.html',{"error":error})
 
-def login(request):
+def login_view(request):
     if request.method == 'POST':
         user=authenticate(
             username=request.POST['username'],
@@ -50,6 +50,7 @@ def login(request):
     else:
         error="Invalid username or password"
     return render(request, 'login.html',{"error":error})
+    
 
 def logout(request):
     logout(request)
