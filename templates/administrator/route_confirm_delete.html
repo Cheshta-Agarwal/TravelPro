@@ -1,0 +1,14 @@
+{% extends "administrator/base_admin.html" %}
+
+{% block content %}
+  <div class="container">
+    <h4>Delete Route</h4>
+    <p>Are you sure you want to delete route "{{ object }}"?</p>
+
+    <form method="post">
+      {% csrf_token %}
+      <button class="btn btn-danger" type="submit">Yes, delete</button>
+      <a class="btn btn-secondary" href="{% url 'administrator:route_list' %}">Cancel</a>
+    </form>
+  </div>
+{% endblock %}

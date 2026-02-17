@@ -4,6 +4,11 @@ from django.views.generic import TemplateView
 from django.contrib.auth.models import User
 from django.db.models import Count, Sum, CharField, BooleanField
 from django.apps import apps
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+from django.contrib import messages
+from django.db.models import Prefetch
+from .forms import BusForm, RouteForm
 
 
 class AdminDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
@@ -83,3 +88,112 @@ class AdminDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
 		context['total_revenue'] = total_revenue
 
 		return context
+
+
+class StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+	def test_func(self):
+		return bool(self.request.user and self.request.user.is_staff)
+
+
+class BusListView(StaffRequiredMixin, ListView):
+	template_name = 'administrator/bus_list.html'
+	context_object_name = 'buses'
+	paginate_by = 10
+
+	def get_queryset(self):
+		Bus = apps.get_model('busop', 'Bus')
+		Schedule = apps.get_model('busop', 'Schedule')
+		Seat = apps.get_model('busop', 'Seat')
+
+		return Bus.objects.prefetch_related(
+			Prefetch('schedule_set', queryset=Schedule.objects.select_related('route').order_by('departure_time'), to_attr='schedules_ordered'),
+			Prefetch('seat_set', to_attr='seats_all')
+		).all()
+
+
+class BusCreateView(StaffRequiredMixin, CreateView):
+	form_class = BusForm
+	template_name = 'administrator/bus_form.html'
+	success_url = reverse_lazy('administrator:bus_list')
+
+	def form_valid(self, form):
+		response = super().form_valid(form)
+		messages.success(self.request, 'Bus created successfully.')
+		return response
+
+
+class BusUpdateView(StaffRequiredMixin, UpdateView):
+	form_class = BusForm
+	template_name = 'administrator/bus_form.html'
+	success_url = reverse_lazy('administrator:bus_list')
+
+	def get_queryset(self):
+		Bus = apps.get_model('busop', 'Bus')
+		return Bus.objects.all()
+
+	def form_valid(self, form):
+		response = super().form_valid(form)
+		messages.success(self.request, 'Bus updated successfully.')
+		return response
+
+
+class BusDeleteView(StaffRequiredMixin, DeleteView):
+	template_name = 'administrator/bus_confirm_delete.html'
+	success_url = reverse_lazy('administrator:bus_list')
+
+	def get_queryset(self):
+		Bus = apps.get_model('busop', 'Bus')
+		return Bus.objects.all()
+
+	def delete(self, request, *args, **kwargs):
+		messages.success(self.request, 'Bus deleted successfully.')
+		return super().delete(request, *args, **kwargs)
+
+
+class RouteListView(StaffRequiredMixin, ListView):
+	template_name = 'administrator/route_list.html'
+	context_object_name = 'routes'
+	paginate_by = 10
+
+	def get_queryset(self):
+		Route = apps.get_model('busop', 'Route')
+		return Route.objects.all()
+
+
+class RouteCreateView(StaffRequiredMixin, CreateView):
+	form_class = RouteForm
+	template_name = 'administrator/route_form.html'
+	success_url = reverse_lazy('administrator:route_list')
+
+	def form_valid(self, form):
+		response = super().form_valid(form)
+		messages.success(self.request, 'Route created successfully.')
+		return response
+
+
+class RouteUpdateView(StaffRequiredMixin, UpdateView):
+	form_class = RouteForm
+	template_name = 'administrator/route_form.html'
+	success_url = reverse_lazy('administrator:route_list')
+
+	def get_queryset(self):
+		Route = apps.get_model('busop', 'Route')
+		return Route.objects.all()
+
+	def form_valid(self, form):
+		response = super().form_valid(form)
+		messages.success(self.request, 'Route updated successfully.')
+		return response
+
+
+class RouteDeleteView(StaffRequiredMixin, DeleteView):
+	template_name = 'administrator/route_confirm_delete.html'
+	success_url = reverse_lazy('administrator:route_list')
+
+	def get_queryset(self):
+		Route = apps.get_model('busop', 'Route')
+		return Route.objects.all()
+
+	def delete(self, request, *args, **kwargs):
+		messages.success(self.request, 'Route deleted successfully.')
+		return super().delete(request, *args, **kwargs)
