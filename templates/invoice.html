@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TravelPro - E-Ticket</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .ticket-container {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .btn-print {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn-print:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div class="ticket-container" style="border: 2px solid #000; padding: 20px; max-width: 600px; margin: auto;">
+    <h2 style="text-align: center;">TravelPro - E-Ticket</h2>
+    <hr>
+    <div style="display: flex; justify-content: space-between;">
+        <p><strong>Ticket ID:</strong> #{{ booking.id }}</p>
+        <p><strong>Date:</strong> {{ booking.booking_date|date:"d M Y" }}</p>
+    </div>
+    <p><strong>Passenger:</strong> {{ booking.user.username }}</p>
+    <p><strong>Bus:</strong> {{ bus.bus_number }} ({{ bus.bus_type }})</p>
+    <p><strong>Route:</strong> {{ route.source }} to {{ route.destination }}</p>
+    <p><strong>Departure:</strong> {{ schedule.departure_time|date:"D, d M Y | H:i" }}</p>
+    <p><strong>Seat Number:</strong> {{ booking.seat.seat_number }}</p>
+    <hr>
+    <h3 style="text-align: right;">Total Paid: ₹{{ schedule.price }}</h3>
+    <p style="font-size: 12px; color: gray;">Note: Please carry a valid ID during travel.</p>
+    <button onclick="window.print()" class="btn-print">Print Ticket</button>
+</div>
+</body>
+</html>
