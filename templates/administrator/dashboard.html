@@ -1,0 +1,76 @@
+{% extends "administrator/base_admin.html" %}
+
+{% block title %}Dashboard - TravelPro Admin{% endblock %}
+
+{% block content %}
+  <div class="container-fluid">
+    <div class="row mb-4">
+      <div class="col-12">
+        <h4 class="mb-0">Overview</h4>
+        <p class="text-muted">Summary of system metrics.</p>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-6 col-md-3">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h6 class="card-title">Total Users</h6>
+            <h3 class="mb-0">{{ total_users|default:0 }}</h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h6 class="card-title">Total Buses</h6>
+            <h3 class="mb-0">{{ total_buses|default:0 }}</h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h6 class="card-title">Total Routes</h6>
+            <h3 class="mb-0">{{ total_routes|default:0 }}</h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h6 class="card-title">Total Bookings</h6>
+            <h3 class="mb-0">{{ total_bookings|default:0 }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-4">
+      <div class="col-12 col-md-6">
+        <div class="card">
+          <div class="card-body">
+            <h6 class="card-title">Total Revenue</h6>
+            <p class="display-6 mb-0">₹ {{ total_revenue|floatformat:2|default:"0.00" }}</p>
+            <p class="text-muted small mt-2">Revenue from confirmed bookings / payments</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="card">
+          <div class="card-body">
+            <h6 class="card-title">Quick Links</h6>
+            <div class="d-flex gap-2 flex-wrap mt-2">
+              <a class="btn btn-outline-primary btn-sm" href="#">View Buses</a>
+              <a class="btn btn-outline-secondary btn-sm" href="#">View Routes</a>
+              <a class="btn btn-outline-success btn-sm" href="#">Export Reports</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
