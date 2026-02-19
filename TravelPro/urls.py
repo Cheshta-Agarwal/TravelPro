@@ -17,8 +17,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,include
 from busop import views 
-
+from user import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('busop.urls')),
+    path("",views.home, name="index"),
+    path('', include('user.urls')),
+
+    
+
 ]

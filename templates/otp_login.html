@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>OTP Login | TravelPro</title>
+</head>
+
+<body>
+
+    <h2>Login with Email OTP</h2>
+
+    {% if error %}
+    <p style="color: red;">{{ error }}</p>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <label>Email:</label><br>
+        <input type="email" name="email" placeholder="Enter registered email" required>
+        <br><br>
+
+        <button type="submit">Send OTP</button>
+    </form>
+
+    <br>
+    <a href="{% url 'login' %}">Login with password</a>
+
+</body>
+
+</html>
