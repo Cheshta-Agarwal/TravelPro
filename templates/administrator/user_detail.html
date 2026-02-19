@@ -4,11 +4,21 @@
 
 {% block header %}User Details{% endblock %}
 
+{% block styles %}
+{{ block.super }}
+<style>
+  .page-panel{max-width:900px;background:#fff;padding:20px;border-radius:10px;box-shadow:0 6px 20px rgba(2,6,23,0.06);margin:1.25rem auto}
+  .profile-meta{display:flex;align-items:center;gap:1rem}
+  .profile-meta h5{margin:0}
+  @media (max-width:767px){.page-panel{margin:.75rem;padding:14px}}
+</style>
+{% endblock %}
+
 {% block content %}
-  <div class="container-fluid">
+  <div class="container-fluid"><div class="page-panel">
     {% if messages %}
       {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        <div class="alert alert-{{ message.tags }} auto-dismiss">{{ message }}</div>
       {% endfor %}
     {% endif %}
 
@@ -41,5 +51,12 @@
         </div>
       </div>
     </div>
-  </div>
+  </div></div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}  <!-- This includes base page scripts -->
+<script>
+    // Page-specific JavaScript
+</script>
 {% endblock %}

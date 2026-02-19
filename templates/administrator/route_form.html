@@ -1,12 +1,21 @@
 {% extends "administrator/base_admin.html" %}
 
+{% block styles %}
+{{ block.super }}
+<style>
+  .page-panel{max-width:760px;background:#fff;padding:20px;border-radius:10px;box-shadow:0 6px 16px rgba(2,6,23,0.06);margin:1.25rem auto}
+  form .form-control, form .form-select{margin-top:.25rem}
+  @media (max-width:767px){.page-panel{margin:.75rem;padding:14px}}
+</style>
+{% endblock %}
+
 {% block content %}
-  <div class="container">
+  <div class="container"><div class="page-panel">
     <h4 class="mb-3">{% if form.instance.pk %}Edit Route{% else %}Add Route{% endif %}</h4>
 
     {% if messages %}
       {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        <div class="alert alert-{{ message.tags }} auto-dismiss">{{ message }}</div>
       {% endfor %}
     {% endif %}
 
@@ -29,5 +38,22 @@
         <a class="btn btn-secondary" href="{% url 'administrator:route_list' %}">Cancel</a>
       </div>
     </form>
-  </div>
+    </div></div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}  <!-- This includes base page scripts -->
+<script>
+    // add bootstrap form classes to Django form fields for nicer look
+    (function(){
+      var form = document.querySelector('form');
+      if(!form) return;
+      form.querySelectorAll('input,select,textarea').forEach(function(el){
+        if(!el.classList.contains('form-control') && el.type!='checkbox' && el.type!='radio' && el.tagName.toLowerCase()!=='button'){
+          el.classList.add('form-control');
+        }
+        if(el.tagName.toLowerCase()==='select') el.classList.add('form-select');
+      });
+    })();
+</script>
 {% endblock %}

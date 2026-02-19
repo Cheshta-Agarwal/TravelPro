@@ -4,15 +4,25 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Admin - TravelPro{% endblock %}</title>
+    {% block styles %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
     <style>
-      :root{--sidebar-width:260px}
-      body{min-height:100vh}
-      .sidebar{width:var(--sidebar-width);min-height:100vh;background:#fff;border-right:1px solid #e9ecef}
+      :root{--sidebar-width:260px;--brand-bg:#0d6efd;--muted:#6c757d}
+      html,body{height:100%}
+      body{min-height:100vh;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;line-height:1.4}
+      .sidebar{width:var(--sidebar-width);min-height:100vh;background:#ffffff;border-right:1px solid #e9ecef}
       .sidebar .nav-link{color:#333}
-      .brand{padding:1rem;border-bottom:1px solid #e9ecef}
-      @media (max-width:767px){.sidebar{position:fixed;left:-100%;z-index:1030}.sidebar.show{left:0}}
+      .sidebar .nav-link.active{background:rgba(13,110,253,0.08);border-radius:6px}
+      .brand{padding:1rem;border-bottom:1px solid #e9ecef;background:linear-gradient(90deg,rgba(13,110,253,0.06),transparent)}
+      @media (max-width:767px){.sidebar{position:fixed;left:-100%;z-index:1030;top:0;bottom:0;overflow:auto}.sidebar.show{left:0}}
       .content-area{padding:1.25rem}
+      .card-head{display:flex;align-items:center;justify-content:space-between}
+      .muted{color:var(--muted)}
+      .table-actions button{margin-right:.25rem}
+      .fade-away{transition:opacity .35s ease;opacity:1}
+      .fade-away.hide{opacity:0}
     </style>
+    {% endblock %}
   </head>
   <body class="bg-light">
     <div class="d-flex">
@@ -46,7 +56,8 @@
       </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-..." crossorigin="anonymous"></script>
+    {% block scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script>
       (function(){
         var toggle = document.getElementById('sidebarToggle');
@@ -56,7 +67,25 @@
             sidebar.classList.toggle('show');
           });
         }
+
+        // auto-dismiss alerts with class .auto-dismiss
+        var alerts = document.querySelectorAll('.alert.auto-dismiss');
+        alerts.forEach(function(a){
+          setTimeout(function(){
+            a.classList.add('hide');
+            setTimeout(function(){ a.remove(); }, 350);
+          }, 3500);
+        });
+
+        // simple confirm for delete links/buttons with data-confirm
+        document.addEventListener('click', function(e){
+          var el = e.target.closest('[data-confirm]');
+          if(!el) return;
+          var msg = el.getAttribute('data-confirm') || 'Are you sure?';
+          if(!confirm(msg)) e.preventDefault();
+        });
       })();
     </script>
+    {% endblock %}
   </body>
 </html>
