@@ -10,12 +10,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='schedule',
-            name='price',
-            field=models.DecimalField(decimal_places=2, default=0, max_digits=6),
-            preserve_default=False,
-        ),
+        
         migrations.AlterUniqueTogether(
             name='seat',
             unique_together={('bus', 'seat_number')},

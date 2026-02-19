@@ -1,43 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search Buses - TravelPro</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .bus-card { transition: transform 0.2s; border-left: 5px solid #007bff; }
-        .bus-card:hover { transform: scale(1.01); }
-        .sold-out { border-left: 5px solid #dc3545; opacity: 0.8; }
+        .bus-card {
+            transition: transform 0.2s;
+            border-left: 5px solid #007bff;
+        }
+
+        .bus-card:hover {
+            transform: scale(1.01);
+        }
+
+        .sold-out {
+            border-left: 5px solid #dc3545;
+            opacity: 0.8;
+        }
     </style>
 </head>
+
 <body class="bg-light">
 
-<div class="container mt-5">
-    <h2 class="text-center mb-4">Find Your Bus</h2>
-    
-    <div class="card shadow-sm p-4 mb-5">
-        <form method="GET" action="{% url 'bus_search' %}" class="row g-3">
-            <div class="col-md-4">
-                <label class="form-label">Source</label>
-                <input type="text" name="source" class="form-control" placeholder="e.g. Delhi" value="{{ source }}" required>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Destination</label>
-                <input type="text" name="destination" class="form-control" placeholder="e.g. Mumbai" value="{{ destination }}" required>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Travel Date</label>
-                <input type="date" name="departure_date" class="form-control" value="{{ departure_date }}">
-            </div>
-            <div class="col-md-1 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary w-100">Search</button>
-            </div>
-        </form>
-    </div>
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Find Your Bus</h2>
 
-    <div class="row">
-        {% if schedules %}
+        <div class="card shadow-sm p-4 mb-5">
+            <form method="GET" action="{% url 'bus_search' %}" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Source</label>
+                    <input type="text" name="source" class="form-control" placeholder="e.g. Delhi" value="{{ source }}"
+                        required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Destination</label>
+                    <input type="text" name="destination" class="form-control" placeholder="e.g. Mumbai"
+                        value="{{ destination }}" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Travel Date</label>
+                    <input type="date" name="departure_date" class="form-control" value="{{ departure_date }}">
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Search</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="row">
+            {% if schedules %}
             <h4 class="mb-3">Available Buses</h4>
             {% for schedule in schedules %}
             <div class="col-12 mb-3">
@@ -54,29 +68,35 @@
                         </div>
                         <div class="text-end">
                             <h5 class="text-primary">₹{{ schedule.price }}</h5>
-                            
-                            <p class="badge {% if not schedule.is_sold_out %}bg-success{% else %}bg-danger{% endif %} mb-2">
+
+                            <p
+                                class="badge {% if not schedule.is_sold_out %}bg-success{% else %}bg-danger{% endif %} mb-2">
                                 {{ schedule.available_seats }} Seats Available
                             </p>
                             <br>
-                            
+
                             {% if not schedule.is_sold_out %}
-                                <a href="{% url 'create_booking' schedule.id %}" class="btn btn-outline-success">Select Seat</a>
+                            <a href="{% url 'create_booking' %}?schedule_id={{ schedule.id }}"
+                                class="btn btn-outline-success">
+                                Select Seat
+                            </a>
+
                             {% else %}
-                                <button class="btn btn-secondary" disabled>Sold Out</button>
+                            <button class="btn btn-secondary" disabled>Sold Out</button>
                             {% endif %}
                         </div>
                     </div>
                 </div>
             </div>
             {% endfor %}
-        {% elif source or destination %}
+            {% elif source or destination %}
             <div class="alert alert-warning text-center">
                 No buses found for <strong>{{ source }}</strong> to <strong>{{ destination }}</strong>.
             </div>
-        {% endif %}
+            {% endif %}
+        </div>
     </div>
-</div>
 
 </body>
+
 </html>

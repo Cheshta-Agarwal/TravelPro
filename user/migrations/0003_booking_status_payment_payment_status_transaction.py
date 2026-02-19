@@ -13,26 +13,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='booking',
-            name='status',
-            field=models.CharField(default='Confirmed', max_length=20),
-        ),
-        migrations.AddField(
-            model_name='payment',
-            name='payment_status',
-            field=models.CharField(default='pending', max_length=20),
-        ),
-        migrations.CreateModel(
-            name='transaction',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('amount', models.DecimalField(decimal_places=2, max_digits=8)),
-                ('transaction_date', models.DateTimeField(auto_now_add=True)),
-                ('transaction_method', models.CharField(max_length=20)),
-                ('transaction_time', models.DateTimeField(auto_now_add=True)),
-                ('status', models.CharField(default='pending', max_length=20)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-            ],
-        ),
+      
     ]

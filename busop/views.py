@@ -3,9 +3,13 @@ from pyexpat.errors import messages
 from django.shortcuts import get_object_or_404, redirect
 from django.db import transaction
 from django.utils import timezone
-from busop.models import Schedule
+from busop.models import Schedule,Seat
+from django.contrib.auth.decorators import login_required
 # Create your views here.
 from user.models import Booking, Payment
+
+
+
 
 # Create your views here.
 
@@ -30,11 +34,6 @@ def bus_search(request):
         if departure_date:
             schedules = schedules.filter(departure_time__date=departure_date)
 
-<<<<<<< HEAD
-        
-
-    # 3. Define the context OUTSIDE the if blocks
-=======
         # Core Logic: Calculate availability for each schedule
         for schedule in schedules:
             # 1. Get total seats automated by your signal
@@ -52,7 +51,6 @@ def bus_search(request):
             # 4. Determine status for the UI
             schedule.is_sold_out = schedule.available_seats <= 0
 
->>>>>>> origin/feature/corelogic
     context = {
         'schedules': schedules,
         'source': source,
@@ -63,40 +61,71 @@ def bus_search(request):
     return render(request, 'busop_search.html', context)
 
 @login_required
-def create_booking(request, schedule_id):
-    schedule = get_object_or_404(Schedule, id=schedule_id)
+def create_booking(request):
+    schedule_id=request.GET.get('schedule_id')
+
+    if not schedule_id:
+        return redirect("bus_search")
     
-    # Core Logic: Fetch only available seats for this specific bus
-    available_seats = Seat.objects.filter(bus=schedule.bus, is_available=True)
+    schedule=get_object_or_404(Schedule, id=schedule_id)
 
-    if request.method == 'POST':
-        seat_id = request.POST.get('seat')
-        passenger_name = request.POST.get('passenger_name')
-        passenger_email = request.POST.get('passenger_email')
-        passenger_phone = request.POST.get('passenger_phone')
 
-        # Member 3: Using a transaction to ensure data integrity
-        with transaction.atomic():
-            selected_seat = get_object_or_404(Seat, id=seat_id, is_available=True)
-            
-            # 1. Create the booking record
-            booking = Booking.objects.create(
-                user=request.user,
-                schedule=schedule,
-                seat=selected_seat,
-                passenger_name=passenger_name,
-                passenger_email=passenger_email,
-                passenger_phone=passenger_phone,
-                status='Confirmed'
-            )
-            
-            # 2. Mark the seat as no longer available
-            selected_seat.is_available = False
-            selected_seat.save()
+    available_seats=Seat.objects.filter(
+        bus=schedule.bus,
+        is_available=True
+    )
+
+    if request.method=="POST":
+        seat_id=request.POST.get('seat')
+        passenger_name=request.POST.get('passenger_name')
+        passenger_email=request.POST.get('passenger_email')
+        passenger_phone=request.POST.get('passenger_phone')
+
+        if not seat_id:
+            return render(request, 'create_booking.html', {
+                'schedule': schedule,
+                'available_seats': available_seats,
+                'error': 'Please select a seat.'
+            })
+        
+        try:
+            with transaction.atomic():
+                # Lock seat row to prevent double booking
+                selected_seat = Seat.objects.select_for_update().get(
+                    id=seat_id,
+                    is_available=True
+                )
+
+                booking = Booking.objects.create(
+                    user=request.user,
+                    schedule=schedule,
+                    seat=selected_seat,
+                    passenger_name=passenger_name,
+                    passenger_email=passenger_email,
+                    passenger_phone=passenger_phone,
+                    status='Confirmed'
+                )
+
+                payment_method = request.POST.get("payment_method")
+
+                Payment.objects.create(
+                        booking=booking,
+                        amount=schedule.price,
+                        payment_status="Success"
+                    )
+                selected_seat.is_available = False
+                selected_seat.save()
 
             return redirect('booking_history')
 
-    return render(request, 'user/create_booking.html', {
+        except Seat.DoesNotExist:
+            return render(request, 'create_booking.html', {
+                'schedule': schedule,
+                'available_seats': available_seats,
+                'error': 'Seat already booked. Please choose another.'
+            })
+
+    return render(request, 'create_booking.html', {
         'schedule': schedule,
         'available_seats': available_seats
     })
