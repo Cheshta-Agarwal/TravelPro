@@ -19,5 +19,8 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('admin-panel/', include('administrator.urls')),
+    # Include administrator app URLconf with namespace so templates can use 'administrator:...'
+    path('admin-panel/', include(("administrator.urls", "administrator"), namespace="administrator")),
+    # Authentication views (login/logout/password reset)
+    path('accounts/', include('django.contrib.auth.urls')),
 ]

@@ -56,12 +56,20 @@
 
               <form method="post" action="{% url 'administrator:toggle_active' u.pk %}" style="display:inline-block" onsubmit="return confirm('Are you sure?');">
                 {% csrf_token %}
-                <button class="btn btn-sm btn-outline-{{ 'danger' if u.is_active else 'success' }}">{{ 'Deactivate' if u.is_active else 'Activate' }}</button>
+                {% if u.is_active %}
+                  <button class="btn btn-sm btn-outline-danger">Deactivate</button>
+                {% else %}
+                  <button class="btn btn-sm btn-outline-success">Activate</button>
+                {% endif %}
               </form>
 
               <form method="post" action="{% url 'administrator:toggle_staff' u.pk %}" style="display:inline-block" onsubmit="return confirm('Change staff status?');">
                 {% csrf_token %}
-                <button class="btn btn-sm btn-outline-{{ 'warning' if u.is_staff else 'primary' }}">{{ 'Demote' if u.is_staff else 'Promote' }}</button>
+                {% if u.is_staff %}
+                  <button class="btn btn-sm btn-outline-warning">Demote</button>
+                {% else %}
+                  <button class="btn btn-sm btn-outline-primary">Promote</button>
+                {% endif %}
               </form>
 
               <form method="post" action="{% url 'administrator:delete_user' u.pk %}" style="display:inline-block" onsubmit="return confirm('Deactivate user (soft delete)?');">
