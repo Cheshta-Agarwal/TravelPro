@@ -197,3 +197,144 @@ class RouteDeleteView(StaffRequiredMixin, DeleteView):
 	def delete(self, request, *args, **kwargs):
 		messages.success(self.request, 'Route deleted successfully.')
 		return super().delete(request, *args, **kwargs)
+
+
+# -----------------------
+# Administrator: User management
+# -----------------------
+from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.http import HttpResponseForbidden
+
+
+class UserListView(StaffRequiredMixin, ListView):
+	template_name = 'administrator/user_list.html'
+	context_object_name = 'users'
+	paginate_by = 10
+
+	def get_queryset(self):
+		UserModel = get_user_model()
+		# Order by most recent join; only load necessary fields to avoid extra cost
+		return UserModel.objects.all().order_by('-date_joined').only('id', 'username', 'email', 'is_active', 'is_staff', 'date_joined')
+
+
+class UserDetailView(StaffRequiredMixin, ListView):
+	# Using ListView to keep things simple for template rendering; context will include `user_obj`
+	template_name = 'administrator/user_detail.html'
+	context_object_name = 'user_obj'
+
+	def get(self, request, *args, **kwargs):
+		UserModel = get_user_model()
+		self.object = get_object_or_404(UserModel, pk=kwargs.get('pk'))
+		return self.render_to_response(self.get_context_data())
+
+	def get_context_data(self, **kwargs):
+		context = {}
+		user = self.object
+		context['user_obj'] = user
+
+		# Try to fetch bookings efficiently from possible apps (busop then user)
+		Booking = None
+		try:
+			Booking = apps.get_model('busop', 'Booking')
+		except LookupError:
+			try:
+				Booking = apps.get_model('user', 'Booking')
+			except LookupError:
+				Booking = None
+
+		if Booking is not None:
+			# Count bookings referencing this user (avoid loading booking objects)
+			bookings_count = Booking.objects.filter(user_id=user.pk).count()
+		else:
+			bookings_count = 0
+
+		context['bookings_count'] = bookings_count
+		return context
+
+
+def _staff_check(u):
+	return bool(u and u.is_staff)
+
+
+@login_required
+@user_passes_test(_staff_check)
+@require_POST
+def toggle_active_view(request, pk):
+	UserModel = get_user_model()
+	target = get_object_or_404(UserModel, pk=pk)
+
+	# Prevent self-deactivation
+	if target.pk == request.user.pk:
+		messages.error(request, 'You cannot change your own active status.')
+		return redirect(reverse('administrator:user_list'))
+
+	# Protect superuser unless current user is superuser
+	if target.is_superuser and not request.user.is_superuser:
+		messages.error(request, 'Cannot change active status of a superuser.')
+		return redirect(reverse('administrator:user_list'))
+
+	target.is_active = not target.is_active
+	target.save(update_fields=['is_active'])
+	messages.success(request, f"User '{target.username}' active status set to {target.is_active}.")
+	return redirect(reverse('administrator:user_list'))
+
+
+@login_required
+@user_passes_test(_staff_check)
+@require_POST
+def toggle_staff_view(request, pk):
+	UserModel = get_user_model()
+	target = get_object_or_404(UserModel, pk=pk)
+
+	# Prevent modifying own staff privilege
+	if target.pk == request.user.pk:
+		messages.error(request, 'You cannot change your own staff privileges.')
+		return redirect(reverse('administrator:user_list'))
+
+	# Protect removing staff from a superuser unless current user is superuser
+	if target.is_superuser and not request.user.is_superuser:
+		messages.error(request, 'Cannot change staff status of a superuser.')
+		return redirect(reverse('administrator:user_list'))
+
+	target.is_staff = not target.is_staff
+	target.save(update_fields=['is_staff'])
+	messages.success(request, f"User '{target.username}' staff status set to {target.is_staff}.")
+	return redirect(reverse('administrator:user_list'))
+
+
+@login_required
+@user_passes_test(_staff_check)
+@require_POST
+def delete_user_view(request, pk):
+	UserModel = get_user_model()
+	target = get_object_or_404(UserModel, pk=pk)
+
+	# Prevent deleting self
+	if target.pk == request.user.pk:
+		messages.error(request, 'You cannot delete your own account.')
+		return redirect(reverse('administrator:user_list'))
+
+	# Protect superuser unless current is superuser
+	if target.is_superuser and not request.user.is_superuser:
+		messages.error(request, 'Cannot delete a superuser.')
+		return redirect(reverse('administrator:user_list'))
+
+	# Hard delete only when explicitly requested and current user is superuser
+	hard = request.POST.get('hard', '') == '1'
+	if hard:
+		if not request.user.is_superuser:
+			messages.error(request, 'Only superusers may permanently delete users.')
+			return redirect(reverse('administrator:user_list'))
+		target.delete()
+		messages.success(request, f"User '{target.username}' permanently deleted.")
+		return redirect(reverse('administrator:user_list'))
+
+	# Soft delete: deactivate account
+	target.is_active = False
+	target.save(update_fields=['is_active'])
+	messages.success(request, f"User '{target.username}' deactivated (soft delete).")
+	return redirect(reverse('administrator:user_list'))

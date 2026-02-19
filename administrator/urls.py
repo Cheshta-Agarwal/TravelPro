@@ -3,6 +3,7 @@ from .views import (
     AdminDashboardView,
     BusListView, BusCreateView, BusUpdateView, BusDeleteView,
     RouteListView, RouteCreateView, RouteUpdateView, RouteDeleteView,
+    UserListView, UserDetailView, toggle_active_view, toggle_staff_view, delete_user_view,
 )
 
 app_name = "administrator"
@@ -21,4 +22,10 @@ urlpatterns = [
     path("routes/create/", RouteCreateView.as_view(), name="route_create"),
     path("routes/<int:pk>/edit/", RouteUpdateView.as_view(), name="route_edit"),
     path("routes/<int:pk>/delete/", RouteDeleteView.as_view(), name="route_delete"),
+    # User management (admin)
+    path("users/", UserListView.as_view(), name="user_list"),
+    path("users/<int:pk>/", UserDetailView.as_view(), name="user_detail"),
+    path("users/<int:pk>/toggle-active/", toggle_active_view, name="toggle_active"),
+    path("users/<int:pk>/toggle-staff/", toggle_staff_view, name="toggle_staff"),
+    path("users/<int:pk>/delete/", delete_user_view, name="delete_user"),
 ]
