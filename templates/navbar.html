@@ -1,0 +1,13 @@
+<nav style="background:#333;padding:10px;">
+    <a href="{% url 'index' %}" style="color:white;margin-right:15px;">Home</a>
+
+    {% if user.is_authenticated %}
+    <a href="{% url 'bus_search' %}" style="color:white;margin-right:15px;">Search Buses</a>
+    <a href="{% url 'booking_history' %}" style="color:white;margin-right:15px;">My Bookings</a>
+    <a href="{% url 'profile' %}" style="color:white;margin-right:15px;">Profile</a>
+    <a href="{% url 'logout' %}" style="color:white;">Logout</a>
+    {% else %}
+    <a href="{% url 'login' %}" style="color:white;margin-right:15px;">Login</a>
+    <a href="{% url 'register' %}" style="color:white;">Register</a>
+    {% endif %}
+</nav>

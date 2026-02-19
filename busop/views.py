@@ -29,6 +29,8 @@ def bus_search(request):
         if departure_date:
             schedules = schedules.filter(departure_time__date=departure_date)
 
+        
+
     # 3. Define the context OUTSIDE the if blocks
     context = {
         'schedules': schedules,
@@ -103,7 +105,7 @@ def booking_history(request):
 
     bookings=Booking.objects.filter(user=request.user).select_related(
         'schedule__bus', 'schedule__route', 'seat'
-        ).order_by('-booking_date')
+        ).order_by('-id')
     
     return render(request, 'booking_history.html', {'bookings': bookings})
 
@@ -137,3 +139,4 @@ def generate_invoice(request, booking_id):
         'seat':booking.seat,
     }
     return render(request, 'invoice.html', context)
+

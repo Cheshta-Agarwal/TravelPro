@@ -119,7 +119,10 @@ def otp_verify_view(request):
 
         user = User.objects.get(id=user_id)
         login(request, user)
-        request.session.flush()
+        request.session.pop("otp", None)
+        request.session.pop("otp_user_id", None)
+        request.session.pop("otp_time", None)
+
         return redirect("index")
 
     return render(request, "otp_verify.html", {"error": error})

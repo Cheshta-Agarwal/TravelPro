@@ -1,6 +1,9 @@
 from django.db import models
 from django.forms import ValidationError
 
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
 # Create your models here.
 
 class busop_user(models.Model):
@@ -71,3 +74,18 @@ class Seat(models.Model):
     def __str__(self):
         return f"{self.bus.bus_number} - Seat {self.seat_number}"
     
+
+@receiver(post_save, sender=Bus)
+def auto_generate_seats(sender, instance, created, **kwargs):
+    """
+    Core Logic: Automates seat creation for the Admin Module.
+    Fulfills the requirement for seat management and availability.
+    """
+    if created:  # Only runs when the Bus is first saved
+        seats_to_create = [
+            Seat(bus=instance, seat_number=f"S{i}")
+            for i in range(1, instance.capacity + 1)
+        ]
+        # bulk_create is efficient for database performance
+        Seat.objects.bulk_create(seats_to_create)
+        print(f"Success: {instance.capacity} seats generated for {instance.bus_number}")

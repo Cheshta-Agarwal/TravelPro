@@ -50,7 +50,7 @@
                         <div class="text-end">
                             <h5 class="text-primary">₹{{ schedule.price }}</h5>
                             <p class="badge {% if schedule.get_available_seats.count > 0 %}bg-success{% else %}bg-danger{% endif %} mb-2">
-                                {{ schedule.get_available_seats.count }} Seats Available
+                                
                             </p>
                             <br>
                             {% if schedule.get_available_seats.count > 0 %}

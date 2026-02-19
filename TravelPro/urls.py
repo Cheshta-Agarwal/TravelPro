@@ -29,6 +29,6 @@ urlpatterns = [
     # App-level URLs
     path('', include('user.urls')),
     path('', include('busop.urls')),
-    path('', include('administrator.urls')),
+    #path('', include('administrator.urls')),
 
 ]

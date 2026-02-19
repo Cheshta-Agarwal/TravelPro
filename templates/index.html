@@ -1,70 +1,65 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base.html' %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>Bus Booking System</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f2f4f7;
-        }
+{% block title %}Home | TravelPro{% endblock %}
 
-        .container {
-            width: 500px;
-            margin: 150px auto;
-            text-align: center;
-            background: #ffffff;
-            padding: 30px;
-            border-radius: 6px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
+{% block content %}
 
-        h1 {
-            margin-bottom: 10px;
-        }
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f2f4f7;
+    }
 
-        p {
-            margin-bottom: 20px;
-            color: #555;
-        }
+    .container {
+        width: 500px;
+        margin: 120px auto;
+        text-align: center;
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 6px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
 
-        a {
-            display: inline-block;
-            margin: 10px;
-            padding: 10px 18px;
-            text-decoration: none;
-            color: #ffffff;
-            background-color: #007bff;
-            border-radius: 4px;
-        }
+    h1 {
+        margin-bottom: 10px;
+    }
 
-        a.register {
-            background-color: #28a745;
-        }
+    p {
+        margin-bottom: 20px;
+        color: #555;
+    }
 
-        a.logout {
-            background-color: #dc3545;
-        }
-    </style>
-</head>
+    .btn {
+        display: inline-block;
+        margin: 10px;
+        padding: 10px 18px;
+        text-decoration: none;
+        color: #ffffff;
+        background-color: #007bff;
+        border-radius: 4px;
+    }
 
-<body>
+    .btn-green {
+        background-color: #28a745;
+    }
+</style>
 
-    <div class="container">
-        <h1>Bus Booking System</h1>
-        <p>Book buses easily and manage your trips online.</p>
+<div class="container">
+    <h1>TravelPro</h1>
+    <p>Book buses easily and manage your trips online.</p>
 
-        {% if user.is_authenticated %}
-        <p>Welcome, <strong>{{ user.username }}</strong></p>
-        <a href="{% url 'profile' %}">My Profile</a>
-        <a href="{% url 'logout' %}" class="logout">Logout</a>
-        {% else %}
-        <a href="{% url 'login' %}">Login</a>
-        <a href="{% url 'register' %}" class="register">Register</a>
-        {% endif %}
-    </div>
+    {% if user.is_authenticated %}
+    <p>Welcome, <strong>{{ user.username }}</strong></p>
 
-</body>
+    <a href="{% url 'bus_search' %}" class="btn">Search Buses</a>
+    <a href="{% url 'booking_history' %}" class="btn btn-green">My Bookings</a>
 
-</html>
+    {% else %}
+    <p>Please login or register to book your journey.</p>
+
+    <a href="{% url 'login' %}" class="btn">Login</a>
+    <a href="{% url 'register' %}" class="btn btn-green">Register</a>
+    {% endif %}
+</div>
+
+{% endblock %}
