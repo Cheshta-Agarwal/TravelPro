@@ -21,15 +21,32 @@ def bus_search(request):
 
     # 2. Perform the logic only if we have search parameters
     if source and destination:
-        # Optimized with select_related for < 3s response time
+        # Optimized with select_related to meet the < 3s requirement
         schedules = Schedule.objects.select_related('bus', 'route').filter(
             route__source__icontains=source,
             route__destination__icontains=destination
         )
+        
         if departure_date:
             schedules = schedules.filter(departure_time__date=departure_date)
 
-    # 3. Define the context OUTSIDE the if blocks
+        # Core Logic: Calculate availability for each schedule
+        for schedule in schedules:
+            # 1. Get total seats automated by your signal
+            total_seats = Seat.objects.filter(bus=schedule.bus).count()
+            
+            # 2. Count current confirmed bookings
+            booked_count = Booking.objects.filter(
+                schedule=schedule, 
+                status='Confirmed'
+            ).count()
+            
+            # 3. Attach the math to the object for the template
+            schedule.available_seats = total_seats - booked_count
+            
+            # 4. Determine status for the UI
+            schedule.is_sold_out = schedule.available_seats <= 0
+
     context = {
         'schedules': schedules,
         'source': source,
@@ -39,66 +56,45 @@ def bus_search(request):
 
     return render(request, 'busop_search.html', context)
 
-def create_booking(request):
+@login_required
+def create_booking(request, schedule_id):
+    schedule = get_object_or_404(Schedule, id=schedule_id)
     
-    #Handles secure seat reservation and payment processing.
+    # Core Logic: Fetch only available seats for this specific bus
+    available_seats = Seat.objects.filter(bus=schedule.bus, is_available=True)
 
     if request.method == 'POST':
-        # 1. Extract data from POST
+        seat_id = request.POST.get('seat')
         passenger_name = request.POST.get('passenger_name')
         passenger_email = request.POST.get('passenger_email')
         passenger_phone = request.POST.get('passenger_phone')
-        schedule_id = request.POST.get('schedule_id')
-        seat_id = request.POST.get('seat_id')
 
-        try:
-            # Core Logic: Use atomic transactions to satisfy Section 46 [cite: 46]
-            with transaction.atomic():
-                # select_for_update() locks rows to prevent double-booking
-                if Booking.objects.select_for_update().filter(schedule_id=schedule_id, seat_id=seat_id).exists():
-                    return render(request, 'booking_error.html', {'error': 'This seat was just taken. Please choose another.'})
+        # Member 3: Using a transaction to ensure data integrity
+        with transaction.atomic():
+            selected_seat = get_object_or_404(Seat, id=seat_id, is_available=True)
+            
+            # 1. Create the booking record
+            booking = Booking.objects.create(
+                user=request.user,
+                schedule=schedule,
+                seat=selected_seat,
+                passenger_name=passenger_name,
+                passenger_email=passenger_email,
+                passenger_phone=passenger_phone,
+                status='Confirmed'
+            )
+            
+            # 2. Mark the seat as no longer available
+            selected_seat.is_available = False
+            selected_seat.save()
 
-                # Fetch the schedule to get the current price
-                schedule = get_object_or_404(Schedule, id=schedule_id)
+            return redirect('booking_history')
 
-                # 3. Create the Booking record
-                booking = Booking.objects.create(
-                    user=request.user,
-                    schedule=schedule,
-                    seat_id=seat_id,
-                    status='Confirmed'
-                )
+    return render(request, 'user/create_booking.html', {
+        'schedule': schedule,
+        'available_seats': available_seats
+    })
 
-                # 4. Process Payment Integration [cite: 38]
-                Payment.objects.create(
-                    booking=booking,
-                    amount=schedule.price,
-                    transaction_id=f"TPRO-{timezone.now().strftime('%y%m%d')}-{booking.id}",
-                    payment_status='Success'
-                )
-
-            # Success response
-            return render(request, 'booking_success.html', {'booking': booking})
-
-        except Exception as e:
-            return render(request, 'booking_error.html', {'error': f"Transaction failed: {str(e)}"})
-
-    else:
-        # GET request logic: Fetch schedule and available seats for the UI
-        schedule_id = request.GET.get('schedule_id')
-        if not schedule_id:
-            return redirect('bus_search') # Redirect if user didn't select a bus [cite: 29]
-
-        schedule = get_object_or_404(Schedule, id=schedule_id)
-        
-        available_seats = schedule.get_available_seats()
-
-        context = {
-            'schedule': schedule,
-            'available_seats': available_seats
-        }
-        return render(request, 'create_booking.html', context)
-    
 def booking_history(request):
 
     bookings=Booking.objects.filter(user=request.user).select_related(

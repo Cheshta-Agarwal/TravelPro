@@ -10,4 +10,5 @@ urlpatterns = [
     path("otp_login",views.otp_login_view,name="otp_login"),
     path("otp_verify",views.otp_verify_view,name="otp_verify"),
     path("booking_history",busop_views.booking_history,name="booking_history"),
+    path("create_booking",busop_views.create_booking,name="create_booking"),
 ]
