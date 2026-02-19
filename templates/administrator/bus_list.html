@@ -1,0 +1,107 @@
+{% extends "administrator/base_admin.html" %}
+
+{% block styles %}
+{{ block.super }}
+<style>
+  .page-panel{max-width:1100px;background:#fff;padding:22px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.06);margin:1.25rem auto}
+  .page-hero{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem}
+  .page-hero h4{margin:0}
+  .list-actions a{min-width:110px}
+  @media (max-width:767px){.page-panel{margin:.75rem;padding:14px}}
+</style>
+{% endblock %}
+
+{% block content %}
+  <div class="container-fluid"><div class="page-panel">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <h4>All Buses</h4>
+        <p class="text-muted">Listing of all buses (global).</p>
+      </div>
+      <div>
+        <a class="btn btn-primary" href="{% url 'administrator:bus_create' %}">Add Bus</a>
+      </div>
+    </div>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} auto-dismiss">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Bus Number</th>
+            <th>Route</th>
+            <th>Departure</th>
+            <th>Arrival</th>
+            <th>Total Seats</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for bus in buses %}
+            <tr>
+              <td>{{ bus.bus_number }}</td>
+              <td>
+                {% if bus.schedules_ordered and bus.schedules_ordered.0.route %}
+                  {{ bus.schedules_ordered.0.route.source }} → {{ bus.schedules_ordered.0.route.destination }}
+                {% else %}
+                  {{ bus.route }}
+                {% endif %}
+              </td>
+              <td>
+                {% if bus.schedules_ordered and bus.schedules_ordered.0.departure_time %}
+                  {{ bus.schedules_ordered.0.departure_time }}
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+              <td>
+                {% if bus.schedules_ordered and bus.schedules_ordered.0.arrival_time %}
+                  {{ bus.schedules_ordered.0.arrival_time }}
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+              <td>{{ bus.seats_all|length|default:bus.capacity }}</td>
+              <td class="text-end">
+                <a class="btn btn-sm btn-outline-primary" href="{% url 'administrator:bus_edit' bus.pk %}">Edit</a>
+                <a class="btn btn-sm btn-outline-danger" data-confirm="Delete this bus?" href="{% url 'administrator:bus_delete' bus.pk %}">Delete</a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="6">No buses found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <nav>
+      <ul class="pagination">
+        {% if page_obj.has_previous %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+        {% else %}
+          <li class="page-item disabled"><span class="page-link">Previous</span></li>
+        {% endif %}
+
+        <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+
+        {% if page_obj.has_next %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+        {% else %}
+          <li class="page-item disabled"><span class="page-link">Next</span></li>
+        {% endif %}
+      </ul>
+    </nav>
+    </div></div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}  <!-- This includes base page scripts -->
+<script>
+    // Page-specific JavaScript
+</script>
+{% endblock %}

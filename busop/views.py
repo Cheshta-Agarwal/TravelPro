@@ -3,7 +3,7 @@ from pyexpat.errors import messages
 from django.shortcuts import get_object_or_404, redirect
 from django.db import transaction
 from django.utils import timezone
-from busop.models import Schedule
+from busop.models import Schedule,Seat
 # Create your views here.
 from user.models import Booking, Payment
 
