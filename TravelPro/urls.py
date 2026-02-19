@@ -20,9 +20,9 @@ from busop import views
 from user import views
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',include('busop.urls')),
+    path('busop/',include('busop.urls')),
     path("",views.home, name="index"),
-    path('', include('user.urls')),
+    path('user/', include('user.urls')),
 
     
 
