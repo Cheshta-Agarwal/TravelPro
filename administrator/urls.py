@@ -3,14 +3,13 @@ from .views import (
     AdminDashboardView,
     BusListView, BusCreateView, BusUpdateView, BusDeleteView,
     RouteListView, RouteCreateView, RouteUpdateView, RouteDeleteView,
-    UserListView, UserDetailView, toggle_active_view, toggle_staff_view, delete_user_view,
+    UserListView, UserDetailView, ScheduleDeleteView, ScheduleCreateView,ScheduleListView ,toggle_active_view, toggle_staff_view, delete_user_view,
 )
 
 app_name = "administrator"
 
 urlpatterns = [
     path("dashboard/", AdminDashboardView.as_view(), name="dashboard"),
-
     # Bus management
     path("buses/", BusListView.as_view(), name="bus_list"),
     path("buses/create/", BusCreateView.as_view(), name="bus_create"),
@@ -28,4 +27,9 @@ urlpatterns = [
     path("users/<int:pk>/toggle-active/", toggle_active_view, name="toggle_active"),
     path("users/<int:pk>/toggle-staff/", toggle_staff_view, name="toggle_staff"),
     path("users/<int:pk>/delete/", delete_user_view, name="delete_user"),
+
+    #Schedule Management
+    path('schedules/', ScheduleListView.as_view(), name='schedule_list'),
+    path('schedules/add/', ScheduleCreateView.as_view(), name='schedule_create'),
+    path('schedules/delete/<int:pk>/', ScheduleDeleteView.as_view(), name='schedule_delete'),
 ]

@@ -11,6 +11,7 @@ from django.db.models import Prefetch
 from .forms import BusForm, RouteForm
 
 
+
 class AdminDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
 	template_name = "administrator/dashboard.html"
 
@@ -198,6 +199,35 @@ class RouteDeleteView(StaffRequiredMixin, DeleteView):
 		messages.success(self.request, 'Route deleted successfully.')
 		return super().delete(request, *args, **kwargs)
 
+from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, DeleteView
+from .forms import ScheduleForm  # We will create this next
+
+class ScheduleListView(StaffRequiredMixin, ListView):
+    template_name = 'administrator/schedule_list.html'
+    context_object_name = 'schedules'
+    
+    def get_queryset(self):
+        Schedule = apps.get_model('busop', 'Schedule')
+        # Optimized with select_related to avoid N+1 queries for bus and route
+        return Schedule.objects.select_related('bus', 'route').all().order_by('departure_time')
+
+class ScheduleCreateView(StaffRequiredMixin, CreateView):
+    form_class = ScheduleForm
+    template_name = 'administrator/schedule_form.html'
+    success_url = reverse_lazy('administrator:schedule_list')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Schedule created successfully.')
+        return super().form_valid(form)
+
+class ScheduleDeleteView(StaffRequiredMixin, DeleteView):
+    template_name = 'administrator/schedule_confirm_delete.html'
+    success_url = reverse_lazy('administrator:schedule_list')
+    
+    def get_queryset(self):
+        Schedule = apps.get_model('busop', 'Schedule')
+        return Schedule.objects.all()
 
 # -----------------------
 # Administrator: User management
