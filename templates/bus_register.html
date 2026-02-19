@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Register Bus</title>
+	<style>
+		:root{--bg:#f4f7fb;--card:#ffffff;--accent:#0b74de;--muted:#6b7280}
+		*{box-sizing:border-box}
+		body{font-family:Inter, system-ui, Arial, sans-serif;background:var(--bg);margin:0;padding:32px;display:flex;align-items:center;justify-content:center;min-height:100vh}
+		.card{width:100%;max-width:680px;background:var(--card);border-radius:12px;padding:28px 28px;box-shadow:0 6px 20px rgba(11,20,40,0.08)}
+		h2{margin:0 0 12px;font-size:20px;color:#0f1724}
+		p.lead{margin:0 0 18px;color:var(--muted);font-size:14px}
+		form .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+		label{display:block;font-size:13px;margin-bottom:6px;color:#111827}
+		input[type="text"],input[type="number"],select{width:100%;Padding:10px 12px;border:1px solid #e6e9ef;border-radius:8px;font-size:14px}
+		.full{grid-column:1/-1}
+		.actions{display:flex;justify-content:flex-end;margin-top:16px}
+		button{background:var(--accent);color:#fff;border:none;padding:10px 16px;border-radius:8px;font-weight:600;cursor:pointer}
+		button:disabled{opacity:0.6;cursor:not-allowed}
+		.note{font-size:12px;color:var(--muted);margin-top:8px}
+		.error{color:#b91c1c;font-size:13px;margin-top:8px}
+		@media (max-width:560px){form .grid{grid-template-columns:1fr}}
+	</style>
+</head>
+<body>
+	<div class="card">
+		<h2>Register New Bus</h2>
+		<p class="lead">Add a bus to the system. Fields marked * are required.</p>
+
+		<form id="busForm" method="post" action="">
+			{% csrf_token %}
+			<div class="grid">
+				<div>
+					<label for="bus_number">Bus Number *</label>
+					<input type="text" id="bus_number" name="bus_number" placeholder="e.g. KA-01-AB-1234" required>
+				</div>
+
+				<div>
+					<label for="route">Route *</label>
+					<input type="text" id="route" name="route" placeholder="e.g. City A - City B" required>
+				</div>
+
+				<div>
+					<label for="bus_type">Bus Type *</label>
+					<select id="bus_type" name="bus_type" required>
+						<option value="">Select type</option>
+						<option value="AC">AC</option>
+						<option value="Non-AC">Non-AC</option>
+						<option value="Sleeper">Sleeper</option>
+						<option value="Semi-Sleeper">Semi-Sleeper</option>
+					</select>
+				</div>
+
+				<div>
+					<label for="capacity">Capacity</label>
+					<input type="number" id="capacity" name="capacity" placeholder="e.g. 40" min="1">
+				</div>
+
+				<div class="full">
+					<label for="driver_name">Driver Name *</label>
+					<input type="text" id="driver_name" name="driver_name" placeholder="Driver full name" required>
+				</div>
+			</div>
+
+			<div class="actions">
+				<button type="submit" id="submitBtn">Add Bus</button>
+			</div>
+
+			<div id="formMsg" class="note" aria-live="polite"></div>
+			<div id="formError" class="error" aria-live="assertive"></div>
+		</form>
+	</div>
+
+	<script>
+		(function(){
+			const form = document.getElementById('busForm');
+			const submitBtn = document.getElementById('submitBtn');
+			const msg = document.getElementById('formMsg');
+			const err = document.getElementById('formError');
+
+			function showError(text){err.textContent = text; msg.textContent = '';}
+			function showMsg(text){msg.textContent = text; err.textContent = '';}
+
+			form.addEventListener('submit', function(e){
+				e.preventDefault();
+				err.textContent = '';
+				msg.textContent = '';
+
+				const busNumber = document.getElementById('bus_number').value.trim();
+				const route = document.getElementById('route').value.trim();
+				const busType = document.getElementById('bus_type').value;
+				const capacity = document.getElementById('capacity').value.trim();
+				const driver = document.getElementById('driver_name').value.trim();
+
+				if(!busNumber) return showError('Bus number is required.');
+				if(!route) return showError('Route is required.');
+				if(!busType) return showError('Please select a bus type.');
+				if(!driver) return showError('Driver name is required.');
+				if(capacity){
+					const n = Number(capacity);
+					if(!Number.isInteger(n) || n < 1) return showError('Capacity must be a positive integer.');
+				}
+
+				// Option A: submit the form normally
+				submitBtn.disabled = true;
+				showMsg('Submitting...');
+				form.submit();
+			});
+		})();
+	</script>
+</body>
+</html>
+
