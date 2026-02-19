@@ -15,7 +15,6 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-<<<<<<< HEAD
 from django.urls import path,include
 from busop import views 
 from user import views
@@ -24,17 +23,8 @@ urlpatterns = [
     path('busop/',include('busop.urls')),
     path("",views.home, name="index"),
     path('user/', include('user.urls')),
+    path('administrator/', include(('administrator.urls', 'administrator'), namespace='administrator')),
 
     
 
-=======
-from django.urls import path, include
-
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    # Include administrator app URLconf with namespace so templates can use 'administrator:...'
-    path('admin-panel/', include(("administrator.urls", "administrator"), namespace="administrator")),
-    # Authentication views (login/logout/password reset)
-    path('accounts/', include('django.contrib.auth.urls')),
->>>>>>> origin/feature/admin-module
 ]

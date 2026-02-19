@@ -55,4 +55,19 @@
                             </div>
                         </div>
 
-                        <div class="d-flex justify-content-
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+    <div class="price-display">
+        <span class="text-muted small d-block">Total Fare</span>
+        <h4 class="text-primary mb-0">₹{{ schedule.price }}</h4>
+    </div>
+    
+    <button type="submit" class="btn btn-success btn-lg px-5 shadow-sm">
+        Confirm & Book Ticket
+    </button>
+</div>
+
+<div class="text-center mt-3">
+    <a href="{% url 'bus_search' %}" class="text-decoration-none text-muted small">
+        ← Cancel and Return to Search
+    </a>
+</div>
