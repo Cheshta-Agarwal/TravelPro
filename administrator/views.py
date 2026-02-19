@@ -1,28 +1,17 @@
 from django.shortcuts import render
-from busop.models import Schedule
+
 # Create your views here.
 
-def busop_search(request):
-    # use GET to allow bookmarking/sharing search results
-    source = request.GET.get('source')
-    destination = request.GET.get('destination')
-    departure_date = request.GET.get('departure_date')
+from django.contrib.admin.views.decorators import staff_member_required
+from .reports import get_admin_dashboard_stats
 
-    schedules=[]
-    if source and destination:
-        schedules = Schedule.objects.select_related('bus', 'route').filter(
-            route__source__icontains=source,
-            route__destination__icontains=destination
-            )
-        
-        if departure_date:
-            schedules = schedules.filter(departure_time__date=departure_date)
-        
-        context ={
-            'schedules': schedules,
-            'source': source,
-            'destination': destination,
-            'departure_date': departure_date
-        }
+@staff_member_required # Ensures only admins can see this
+def admin_dashboard(request):
+    
+    #Core Logic: Fetches system-wide stats for the Admin Dashboard.
+    
+    stats = get_admin_dashboard_stats()
+    return render(request, 'administrator/dashboard.html', {'stats': stats})
 
-    return render(request, 'busop/bus_search.html', context)
+
+
