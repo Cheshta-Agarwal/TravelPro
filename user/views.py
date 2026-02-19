@@ -125,5 +125,8 @@ def otp_verify_view(request):
 
         return redirect("index")
 
+
     return render(request, "otp_verify.html", {"error": error})
 
+
+   
