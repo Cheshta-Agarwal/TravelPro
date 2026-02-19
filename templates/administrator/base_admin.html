@@ -32,10 +32,10 @@
         </div>
         <ul class="nav flex-column mt-3">
           <li class="nav-item"><a class="nav-link" href="{% url 'administrator:dashboard' %}">Dashboard</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Buses</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Routes</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Users</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Sales Reports</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'administrator:bus_list' %}">Buses</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'administrator:route_list' %}">Routes</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'administrator:schedule_list' %}">Schedule</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'administrator:user_list' %}">Users</a></li>
         </ul>
       </nav>
 

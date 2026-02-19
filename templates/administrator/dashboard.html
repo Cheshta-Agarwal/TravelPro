@@ -77,10 +77,9 @@
           <div class="card-body">
             <h6 class="card-title">Quick Links</h6>
             <div class="d-flex gap-2 flex-wrap mt-2">
-              <a class="btn btn-outline-primary btn-sm" href="#">View Buses</a>
-              <a class="btn btn-outline-secondary btn-sm" href="#">View Routes</a>
-              <a class="btn btn-outline-success btn-sm" href="#">Export Reports</a>
-            </div>
+              <a class="btn btn-outline-primary btn-sm" href="{% url 'administrator:bus_list' %}">View Buses</a>
+              <a class="btn btn-outline-secondary btn-sm" href="{% url 'administrator:route_list' %}">View Routes</a>
+              <a class="btn btn-danger btn-sm" href="{% url 'admin_logout' %}">Logout</a>
           </div>
         </div>
       </div>
