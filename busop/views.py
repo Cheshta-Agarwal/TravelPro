@@ -1,16 +1,39 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from pyexpat.errors import messages
 from django.shortcuts import get_object_or_404, redirect
 from django.db import transaction
+from django.contrib import messages as django_messages
 from django.utils import timezone
 from busop.models import Schedule,Seat
+from django.contrib.auth.decorators import login_required
 # Create your views here.
 from user.models import Booking, Payment
-
+from django.contrib.auth import authenticate, login, logout
 # Create your views here.
 
 from busop.models import Schedule
 
+def admin_login(request):
+    if request.method == 'POST':
+        user = authenticate(username=request.POST['username'], password=request.POST['password'])
+        if user is not None and user.is_staff: # The logic check must happen here
+            login(request, user)
+            return redirect('administrator:dashboard')
+        else:
+            return render(request, 'admin_login.html', {'error': 'Invalid credentials or not staff'})
+    return render(request, 'admin_login.html')
+
+def admin_login_page(request):
+    return render(request, 'admin_login.html')
+
+def admin_logout(request):
+    """
+    Core Logic: Securely flushes the admin session.
+    Redirects to the admin login page with a success message.
+    """
+    logout(request)
+    django_messages.success(request, "You have been logged out successfully.")
+    return redirect('admin_login')
 
 def bus_search(request):
     # 1. Initialize variables at the top to avoid UnboundLocalError
@@ -90,7 +113,7 @@ def create_booking(request, schedule_id):
 
             return redirect('booking_history')
 
-    return render(request, 'user/create_booking.html', {
+    return render(request, 'create_booking.html', {
         'schedule': schedule,
         'available_seats': available_seats
     })

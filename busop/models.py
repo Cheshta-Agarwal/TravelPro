@@ -71,3 +71,22 @@ class Seat(models.Model):
     def __str__(self):
         return f"{self.bus.bus_number} - Seat {self.seat_number}"
     
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from .models import Bus, Seat
+
+@receiver(post_save, sender=Bus)
+def auto_generate_seats(sender, instance, created, **kwargs):
+    """
+    Core Logic: Automates seat creation for the Admin Module.
+    Fulfills the requirement for seat management and availability.
+    """
+    if created:  # Only run when a new Bus record is first created
+        # Create a list of Seat objects to save to the DB in one go
+        seats_to_create = [
+            Seat(bus=instance, seat_number=f"S{i}")
+            for i in range(1, instance.capacity + 1)
+        ]
+        # bulk_create is faster than a loop, maintaining < 3s response time
+        Seat.objects.bulk_create(seats_to_create)
+        print(f"Automated System: Created {instance.capacity} seats for {instance.bus_number}")
