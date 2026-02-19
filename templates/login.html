@@ -74,12 +74,17 @@
             <input type="password" name="password" placeholder="Password" required>
             <button type="submit">Login</button>
         </form>
+        <br>
+        <div class="link">
 
+            <a href="{%url 'otp_login' %}">Login with OTP</a>
+        </div>
         <div class="link">
             <p>Don't have an account?
                 <a href="{% url 'register' %}">Register</a>
             </p>
         </div>
+
     </div>
 
 </body>
