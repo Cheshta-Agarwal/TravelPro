@@ -48,13 +48,13 @@ class Schedule(models.Model):
         # This import stays inside the function to avoid circular import errors 
         from user.models import Booking 
         
-        # 1. Get IDs of seats already booked for this specific schedule [cite: 52]
+        # 1. Get IDs of seats already booked for this specific schedule 
         booked_seat_ids = Booking.objects.filter(
             schedule=self, 
             status__in=['Confirmed', 'Pending']
         ).values_list('seat_id', flat=True)
         
-        # 2. Return all seats belonging to this bus except the booked ones [cite: 51]
+        # 2. Return all seats belonging to this bus except the booked ones 
         return Seat.objects.filter(bus=self.bus).exclude(id__in=booked_seat_ids)
 
     def __str__(self):
