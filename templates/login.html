@@ -1,92 +1,61 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% block title %}Login | TravelPro{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>Login | Bus Booking System</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
-        }
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 85vh;">
+    <div class="card p-4" style="width: 430px; border-radius: 16px;">
 
-        .container {
-            width: 350px;
-            margin: 100px auto;
-            padding: 25px;
-            background: #fff;
-            border-radius: 6px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        h2 {
-            text-align: center;
-        }
-
-        input {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-        }
-
-        button {
-            width: 100%;
-            padding: 10px;
-            background: #007bff;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #0056b3;
-        }
-
-        .error {
-            color: red;
-            text-align: center;
-        }
-
-        .link {
-            text-align: center;
-            margin-top: 10px;
-        }
-
-        a {
-            text-decoration: none;
-            color: #007bff;
-        }
-    </style>
-</head>
-
-<body>
-
-    <div class="container">
-        <h2>User Login</h2>
+        <h3 class="text-center mb-3">Login to TravelPro</h3>
 
         {% if error %}
-        <p class="error">{{ error }}</p>
+        <div class="alert alert-danger">
+            {{ error }}
+        </div>
         {% endif %}
 
+        <!-- ================= USER LOGIN ================= -->
         <form method="post">
             {% csrf_token %}
-            <input type="text" name="username" placeholder="Username" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <button type="submit">Login</button>
-        </form>
-        <br>
-        <div class="link">
 
-            <a href="{%url 'otp_login' %}">Login with OTP</a>
+            <div class="mb-3">
+                <label class="form-label">Username</label>
+                <input type="text" name="username" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+
+            <button class="btn btn-primary w-100 mb-3">
+                Login
+            </button>
+        </form>
+
+        <!-- ================= OTP LOGIN ================= -->
+        <div class="text-center text-muted my-3">
+            ── OR ──
         </div>
-        <div class="link">
-            <p>Don't have an account?
-                <a href="{% url 'register' %}">Register</a>
-            </p>
+
+        <a href="{% url 'otp_login' %}" class="btn btn-outline-primary w-100 mb-3">
+            Login with OTP
+        </a>
+
+        <!-- ================= ADMIN LOGIN ================= -->
+        <div class="text-center text-muted my-3">
+            ── ADMIN ──
         </div>
+
+        <a href="{% url 'admin_login_page' %}" class="btn btn-outline-dark w-100">
+            Login as Admin
+        </a>
+
+        <!-- ================= FOOTER LINKS ================= -->
+        <p class="text-center mt-3 mb-0">
+            Don’t have an account?
+            <a href="{% url 'register' %}">Register</a>
+        </p>
 
     </div>
-
-</body>
-
-</html>
+</div>
+{% endblock %}

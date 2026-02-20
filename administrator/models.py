@@ -7,7 +7,7 @@ class admin_user(models.Model):
     password = models.CharField(max_length=18)
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=15)
-    OTP = models.CharField(max_length=6)
+    OTP = models.CharField(max_length=6,null=True,blank=True)
 
     def __str__(self):
         return self.username

@@ -23,6 +23,7 @@ urlpatterns = [
     path('busop/',include('busop.urls')),
     path("",views.home, name="index"),
     path('user/', include('user.urls')),
+    path('administrator/', include(('administrator.urls', 'administrator'), namespace='administrator')),
 
     
 

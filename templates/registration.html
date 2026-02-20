@@ -1,89 +1,52 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% block title %}Register | TravelPro{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>Register | Bus Booking System</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
-        }
-
-        .container {
-            width: 350px;
-            margin: 100px auto;
-            padding: 25px;
-            background: #fff;
-            border-radius: 6px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        h2 {
-            text-align: center;
-        }
-
-        input {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-        }
-
-        button {
-            width: 100%;
-            padding: 10px;
-            background: #28a745;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #1e7e34;
-        }
-
-        .error {
-            color: red;
-            text-align: center;
-        }
-
-        .link {
-            text-align: center;
-            margin-top: 10px;
-        }
-
-        a {
-            text-decoration: none;
-            color: #007bff;
-        }
-    </style>
-</head>
-
-<body>
-
-    <div class="container">
-        <h2>User Registration</h2>
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card p-4" style="width: 420px; border-radius: 16px;">
+        <h3 class="text-center mb-3">Create Account</h3>
 
         {% if error %}
-        <p class="error">{{ error }}</p>
+        <div class="alert alert-danger">
+            {{ error }}
+        </div>
         {% endif %}
 
         <form method="post">
             {% csrf_token %}
-            <input type="text" name="username" placeholder="Username" required>
-            <input type="email" name="email" placeholder="Email" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <input type="text" name="phone" placeholder="Phone" required>
-            <button type="submit">Register</button>
+
+            <div class="mb-3">
+                <label class="form-label">Username</label>
+                <input type="text" name="username" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Phone Number</label>
+                <input type="text" name="phone" class="form-control" required>
+            </div>
+
+
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+
+
+
+            <button class="btn btn-primary w-100">
+                Register
+            </button>
         </form>
 
-        <div class="link">
-            <p>Already have an account?
-                <a href="{% url 'login' %}">Login</a>
-            </p>
-        </div>
+        <p class="text-center mt-3 mb-0">
+            Already have an account?
+            <a href="{% url 'login' %}">Login</a>
+        </p>
     </div>
-
-</body>
-
-</html>
+</div>
+{% endblock %}

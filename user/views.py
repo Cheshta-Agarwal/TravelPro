@@ -4,6 +4,10 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.conf import settings
+from user.models import Booking
+from django.utils import timezone
+from django.contrib import messages
+
 import random
 import time
 
@@ -53,10 +57,12 @@ def login_view(request):
 
     if user is not None:
         login(request, user)
+        messages.success(request, f"Welcome back, {user.username} 👋")
         return redirect('index')
 
-    error = "Invalid username or password"
-    return render(request, 'login.html', {"error": error})
+    messages.error(request, "Invalid username or password")
+    return redirect('login')
+
 
 
 def logout_view(request):
@@ -66,7 +72,29 @@ def logout_view(request):
 
 @login_required
 def profile(request):
-    return render(request, 'profile.html')
+    user = request.user
+
+    total_bookings = Booking.objects.filter(user=user).count()
+
+    upcoming_bookings = Booking.objects.filter(
+        user=user,
+        status='Confirmed',
+        schedule__departure_time__gte=timezone.now()
+    ).count()
+
+    cancelled_bookings = Booking.objects.filter(
+        user=user,
+        status='Cancelled'
+    ).count()
+
+    context = {
+        'total_bookings': total_bookings,
+        'upcoming_bookings': upcoming_bookings,
+        'cancelled_bookings': cancelled_bookings,
+    }
+
+    return render(request, 'profile.html', context)
+
 
 
 def otp_login_view(request):

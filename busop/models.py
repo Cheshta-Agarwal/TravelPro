@@ -81,11 +81,14 @@ def auto_generate_seats(sender, instance, created, **kwargs):
     Core Logic: Automates seat creation for the Admin Module.
     Fulfills the requirement for seat management and availability.
     """
-    if created:  # Only runs when the Bus is first saved
+
+    if created:  # Only run when a new Bus record is first created
+        # Create a list of Seat objects to save to the DB in one go
+
         seats_to_create = [
             Seat(bus=instance, seat_number=f"S{i}")
             for i in range(1, instance.capacity + 1)
         ]
-        # bulk_create is efficient for database performance
+        # bulk_create is faster than a loop, maintaining < 3s response time
         Seat.objects.bulk_create(seats_to_create)
-        print(f"Success: {instance.capacity} seats generated for {instance.bus_number}")
+        print(f"Automated System: Created {instance.capacity} seats for {instance.bus_number}")
