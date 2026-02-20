@@ -211,19 +211,18 @@ def cancel_booking(request, booking_id):
 
 @login_required
 def generate_invoice(request, booking_id):
-    booking = get_object_or_404(
-        Booking,
-        id=booking_id,
-        user=request.user
-    )
+    # Ensure the booking belongs to the logged-in user
+    booking = get_object_or_404(Booking, id=booking_id, user=request.user)
+    
+    # Try to get payment info, but don't crash if it's missing
+    payment = Payment.objects.filter(booking=booking).first()
 
-    payment = get_object_or_404(Payment, booking=booking)
-
-    return render(request, 'invoice.html', {
+    context = {
         'booking': booking,
-        'payment': payment,
+        'payment': payment, # This will be None if no payment exists
         'bus': booking.schedule.bus,
         'route': booking.schedule.route,
         'schedule': booking.schedule,
         'seat': booking.seat,
-    })
+    }
+    return render(request, 'invoice.html', context)

@@ -16,6 +16,7 @@
                 <th>Seat</th>
                 <th>Amount</th>
                 <th>Status</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -35,6 +36,11 @@
                         {{ booking.status }}
                     </span>
                 </td>
+                <td>
+                <a href="{% url 'generate_invoice' booking.id %}" class="btn btn-sm btn-primary">
+                    Download Ticket
+                </a>
+</td>
             </tr>
             {% empty %}
             <tr>
