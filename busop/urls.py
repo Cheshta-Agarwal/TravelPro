@@ -1,10 +1,22 @@
-from django.contrib import admin
 from django.urls import path
-from busop import views as busop_views
+from . import views
 
 urlpatterns = [
-path('bus_search/', busop_views.bus_search, name='bus_search'),
-path('admin_login_page/',busop_views.admin_login_page,name='admin_login_page'),
-path('admin_login/',busop_views.admin_login,name='admin_login'),
-path('admin_logout/', busop_views.admin_logout, name='admin_logout'),
+    # Bus search
+    path('bus_search/', views.bus_search, name='bus_search'),
+
+    # Booking flow
+    path('create_booking/', views.create_booking, name='create_booking'),
+    path('booking_history/', views.booking_history, name='booking_history'),
+    path('cancel_booking/<int:booking_id>/', views.cancel_booking, name='cancel_booking'),
+
+    # Invoice
+
+
+path('admin_login_page/',views.admin_login_page,name='admin_login_page'),
+path('admin_login/',views.admin_login,name='admin_login'),
+path('admin_logout/', views.admin_logout, name='admin_logout'),
+
+path('generate_invoice/<int:booking_id>/', views.generate_invoice, name='generate_invoice'),
+path('cancel_booking/<int:booking_id>/', views.cancel_booking, name='cancel_booking'),
 ]

@@ -1,0 +1,63 @@
+<nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(90deg,#2563eb,#1e40af);">
+
+    <div class="container">
+        <!-- Home -->
+        <a class="navbar-brand text-white fw-bold" href="{% url 'index' %}">
+            TravelPro
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navMenu">
+            <ul class="navbar-nav ms-auto align-items-center">
+
+                <!-- Bus Search (busop app) -->
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{% url 'bus_search' %}">
+                        Bus Search
+                    </a>
+                </li>
+
+                {% if user.is_authenticated %}
+                <!-- Booking History instead of fake dashboard -->
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{% url 'booking_history' %}">
+                        My Bookings
+                    </a>
+                </li>
+
+                <!-- Profile -->
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{% url 'profile' %}">
+                        Profile
+                    </a>
+                </li>
+
+                <!-- Logout -->
+                <li class="nav-item ms-2">
+                    <a class="btn btn-outline-light btn-sm" href="{% url 'logout' %}">
+                        Logout
+                    </a>
+                </li>
+                {% else %}
+                <!-- Login -->
+                <li class="nav-item ms-2">
+                    <a class="btn btn-outline-light btn-sm" href="{% url 'login' %}">
+                        Login
+                    </a>
+                </li>
+
+                <!-- Register -->
+                <li class="nav-item ms-2">
+                    <a class="btn btn-light btn-sm text-primary fw-semibold" href="{% url 'register' %}">
+                        Register
+                    </a>
+                </li>
+                {% endif %}
+
+            </ul>
+        </div>
+    </div>
+</nav>

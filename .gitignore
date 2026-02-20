@@ -11,6 +11,6 @@ db.sqlite3
 # IDE
 .vscode/
 
-# Django Migrations
-migrations/
+*/migrations/__pycache__/
+
 *.log
