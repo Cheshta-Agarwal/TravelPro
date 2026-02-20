@@ -50,9 +50,17 @@
                     </span>
                 </td>
                 <td>
-                <a href="{% url 'generate_invoice' booking.id %}" class="btn btn-sm btn-primary">
-                    Download Ticket
-                </a>
+    {% if booking.status == 'Confirmed' %}
+        <a href="{% url 'generate_invoice' booking.id %}" class="btn btn-sm btn-primary">Download</a>
+        
+        <a href="{% url 'cancel_booking' booking.id %}" 
+           class="btn btn-sm btn-danger" 
+           onclick="return confirm('Are you sure you want to cancel this booking?');">
+           Cancel booking
+        </a>
+    {% elif booking.status == 'Cancelled' %}
+        <span class="badge bg-danger">Cancelled</span>
+    {% endif %}
 </td>
             </tr>
             {% empty %}

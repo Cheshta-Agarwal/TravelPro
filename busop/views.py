@@ -126,22 +126,32 @@ def booking_history(request):
     
     return render(request, 'booking_history.html', {'bookings': bookings})
 
-def cancel_booking(request,booking_id):
-    booking=get_object_or_404(Booking, id=booking_id, user=request.user)
+def cancel_booking(request, booking_id):
+    # Ensure the user can only cancel their own booking
+    booking = get_object_or_404(Booking, id=booking_id, user=request.user)
     
+    # 1. Check time constraint: Cannot cancel within 1 hour of departure
     if booking.schedule.departure_time - timezone.now() < timezone.timedelta(hours=1):
-        return render(request, 'cancel_error.html', {'error': 'Cannot cancel bookings less than 1 hour before departure.'})
+        return render(request, 'cancel_error.html', {
+            'error': 'Cancellations are not allowed within 1 hour of departure.'
+        })
 
-    if booking.status == 'Confirmed':
+    # 2. Update Booking and associated records
+    if booking.status != 'Cancelled':
         booking.status = 'Cancelled'
         booking.save()
 
-        # Update payment status to 'Refunded' 
+        # Update seat availability so others can book it
+        seat = booking.seat
+        seat.is_available = True
+        seat.save()
+
+        # Update payment status using your specific model field
         Payment.objects.filter(booking=booking).update(payment_status='Refunded')
 
-        messages.success(request, f"Booking #{booking.id} has been cancelled successfully.")
+        django_messages.success(request, f"Booking #{booking.id} has been cancelled. Your seat {seat.seat_number} is now released.")
 
-    return redirect('booking_history')  # Redirect to booking history page after cancellation
+    return redirect('booking_history')
 
 def generate_invoice(request, booking_id):
     # Ensure the booking belongs to the logged-in user

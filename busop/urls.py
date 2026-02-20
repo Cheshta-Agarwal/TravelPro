@@ -8,4 +8,5 @@ path('admin_login_page/',busop_views.admin_login_page,name='admin_login_page'),
 path('admin_login/',busop_views.admin_login,name='admin_login'),
 path('admin_logout/', busop_views.admin_logout, name='admin_logout'),
 path('generate_invoice/<int:booking_id>/', busop_views.generate_invoice, name='generate_invoice'),
+path('cancel_booking/<int:booking_id>/', busop_views.cancel_booking, name='cancel_booking'),
 ]
