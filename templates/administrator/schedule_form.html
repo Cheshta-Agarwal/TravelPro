@@ -1,0 +1,21 @@
+{% extends "administrator/base_admin.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="page-panel" style="max-width:600px; margin: auto; background: #fff; padding: 20px; border-radius: 10px;">
+        <h4 class="mb-3">Create New Schedule</h4>
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="mb-3">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary">Save Schedule</button>
+            <a href="{% url 'administrator:schedule_list' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -10,6 +10,7 @@ class Booking(models.Model):
     seat = models.ForeignKey(Seat, on_delete=models.CASCADE)
     passenger_email = models.EmailField()
     passenger_phone = models.CharField(max_length=15)
+    status = models.CharField(max_length=20, default='Confirmed') # e.g., Confirmed, Cancelled
 
     def __str__(self):
         return f"Booking for {self.passenger_name} on {self.schedule}"
@@ -20,6 +21,7 @@ class Payment(models.Model):
     payment_date = models.DateTimeField(auto_now_add=True)
     payment_method = models.CharField(max_length=20) #e.g., card, UPI, net banking
     payment_time = models.DateTimeField(auto_now_add=True)
+    payment_status = models.CharField(max_length=20, default='pending') # e.g., pending, completed, failed
 
     def __str__(self):
         return f"Payment of {self.amount} for {self.booking.passenger_name}"
@@ -40,6 +42,7 @@ class transaction(models.Model):
     transaction_date = models.DateTimeField(auto_now_add=True)
     transaction_method = models.CharField(max_length=20) #e.g., card, UPI, net banking
     transaction_time = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, default='pending') # e.g., pending, completed, failed
 
     def __str__(self):
         return f"Transaction of {self.amount} for {self.user.username}"

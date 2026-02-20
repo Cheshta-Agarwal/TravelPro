@@ -1,0 +1,39 @@
+{% extends "administrator/base_admin.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="page-panel">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4>Bus Schedules</h4>
+            <a href="{% url 'administrator:schedule_create' %}" class="btn btn-primary">Add Schedule</a>
+        </div>
+        
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Bus</th>
+                    <th>Route</th>
+                    <th>Departure</th>
+                    <th>Arrival</th>
+                    <th>Price</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for schedule in schedules %}
+                <tr>
+                    <td>{{ schedule.bus.bus_number }}</td>
+                    <td>{{ schedule.route.source }} → {{ schedule.route.destination }}</td>
+                    <td>{{ schedule.departure_time|date:"D, d M Y | H:i" }}</td>
+                    <td>{{ schedule.arrival_time|date:"D, d M Y | H:i" }}</td>
+                    <td>₹{{ schedule.price }}</td>
+                    <td>
+                        <a href="{% url 'administrator:schedule_delete' schedule.pk %}" class="btn btn-sm btn-outline-danger">Remove</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

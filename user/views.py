@@ -1,52 +1,140 @@
-from django.shortcuts import render
-from django.db import transaction
 
+from pyexpat.errors import messages
+from django.shortcuts import get_object_or_404, redirect, render
+from django.db import transaction
+from django.utils import timezone
 from busop.models import Schedule
 # Create your views here.
 from .models import Booking, Payment
 
-def create_booking(request):
+    
+
+from django.shortcuts import *
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
+from django.conf import settings
+import random
+import time
+
+
+# Create your views here
+def home(request):
+    return render(request,'index.html')
+
+
+def register(request):
+    error=None
     if request.method == 'POST':
-        # 1. Extract data from POST
-        passenger_name = request.POST.get('passenger_name')
-        schedule_id = request.POST.get('schedule_id')
-        seat_id = request.POST.get('seat_id')
-        passenger_email = request.POST.get('passenger_email')
-        passenger_phone = request.POST.get('passenger_phone')
+        username=request.POST['username']
+        email=request.POST['email']
+        password=request.POST['password']
+        phone=request.POST['phone']
+    
+        if User.objects.filter(username=username).exists():
+            error="Username already exists"
+        else:
+            user=User.objects.create_user(
+                username=username,
+                email=email,
+                password=password
+            )
+    
+        send_mail(
+            subject='Registraion Successful: Welcome to TravelPro',
+            message=f'Hi {username}, your account has been successfully created. Welcome to TravelPro!',
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[email],
+            fail_silently=False,
 
-        try:
-            with transaction.atomic():
-                # 2. Prevent Double-Booking 
-                # Use select_for_update() to lock these rows in the DB during the transaction
-                if Booking.objects.select_for_update().filter(schedule_id=schedule_id, seat_id=seat_id).exists():
-                    return render(request, 'booking_error.html', {'error': 'Seat already booked'})
-                # 3. Create the Booking record 
-                booking = Booking.objects.create(
-                    user=request.user,
-                    schedule_id=schedule_id,
-                    seat_id=seat_id,
-                    passenger_name=passenger_name,
-                    passenger_email=passenger_email,
-                    passenger_phone=passenger_phone
-                )
+        )
+        return redirect('login')
+    return render(request,'registration.html',{"error":error})
 
-                # 4. Process Payment 
-                # In a real app, calculate the price from the Schedule model 
-                schedule = Schedule.objects.get(id=schedule_id)
-                Payment.objects.create(
-                    booking=booking,
-                    amount=schedule.price,  # Use the actual price from the schedule
-                    transaction_id=f"TXN-{booking.id}-{request.user.id}", 
-                    payment_status='Success'
-                )
-                # If transaction finishes successfully
-            return render(request, 'booking_success.html', {'booking': booking})
+def login_view(request):
+    if request.method == 'GET':
+        return render(request, 'login.html')
 
-        except Exception as e:
-            # Handle unexpected database errors
-            return render(request, 'booking_error.html', {'error': str(e)})
+   
+    user = authenticate(
+        username=request.POST.get('username'),
+        password=request.POST.get('password')
+    )
 
-    # GET request: Show the booking form
-    return render(request, 'create_booking.html')
+    if user is not None:
+        login(request, user)
+        return redirect('index')
+    else:
+        error = "Invalid username or password"
+        return render(request, 'login.html', {"error": error})
+
+def logout_view(request):
+    request.session.flush()
+    return redirect('index')
+
+@login_required
+def profile(request):
+    return render(request,'profile.html')
+
+def otp_login_view(request):
+    error=None
+
+    if request.method == "POST":
+        email=request.POST.get("email")
+        user=User.objects.filter(email=email).first()
+
+        if not user:
+            error="No user found with this email"
+        else:
+            otp=str(random.randint(100000, 999999))
+            request.session["otp"]=otp
+            request.session["otp_user_id"]=user.id
+            request.session["otp_time"]=time.time()
+
+            send_mail(
+                "Your OTP for TravelPro Login",
+                f"Your OTP for logging into TravelPro is: {otp}. It is valid for 5 minutes.",
+                settings.EMAIL_HOST_USER,
+                [email],
+                fail_silently=False,
+            )
+
+            return redirect("otp_verify")
+    return render(request, "otp_login.html",{"error":error})
+    
+def otp_verify_view(request):
+    error=None
+    if request.method=="POST":
+        otp=request.POST.get("otp")
+        session_otp=request.session.get("otp")
+        user_id=request.session.get("otp_user_id")
+        otp_time=request.session.get("otp_time")
 
 
+        if not session_otp or not user_id or not otp_time:
+            error="OTP session expired. Please try again."
+            return redirect("otp_login")
+        
+        if time.time()-otp_time>300:
+            request.session.pop("otp",None)
+            request.session.pop("otp_user_id",None)
+            request.session.pop("otp_time",None)
+            error="OTP expired. Please request a new one."
+            return redirect("otp_login")
+        
+        if otp!=session_otp:
+            error="Invalid OTP"
+            return render(request,"otp_verify.html",{"error":error})
+        
+        user=User.objects.get(id=user_id)
+        login(request, user)
+
+        request.session.pop("otp",None)
+        request.session.pop("otp_user_id",None)
+        request.session.pop("otp_time",None)
+
+        return redirect("index")
+    return render(request,"otp_verify.html",{"error":error})
+
+    

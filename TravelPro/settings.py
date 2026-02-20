@@ -75,16 +75,20 @@ WSGI_APPLICATION = 'TravelPro.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+
+
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": "travelpro",
-        "USER": "root",
-        "PASSWORD": "root",
-        "HOST": "127.0.0.1",
-        "PORT": "3308",
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'TravelPro',
+        'USER': 'root',
+        'PASSWORD': 'root',
+        'HOST': "127.0.0.1",
+        'PORT': '3308',
     }
 }
+
 
 # Email Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -139,3 +143,6 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_URL = 'admin_login'
+LOGIN_REDIRECT_URL = 'administrator:dashboard'
