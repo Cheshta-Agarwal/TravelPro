@@ -144,15 +144,18 @@ def cancel_booking(request,booking_id):
     return redirect('booking_history')  # Redirect to booking history page after cancellation
 
 def generate_invoice(request, booking_id):
-    booking=get_object_or_404(Booking, id=booking_id, user=request.user)
-    payment=get_object_or_404(Payment, booking=booking)
+    # Ensure the booking belongs to the logged-in user
+    booking = get_object_or_404(Booking, id=booking_id, user=request.user)
+    
+    # Try to get payment info, but don't crash if it's missing
+    payment = Payment.objects.filter(booking=booking).first()
 
-    context={
+    context = {
         'booking': booking,
-        'payment': payment,
-        'bus':booking.schedule.bus,
-        'route':booking.schedule.route,
-        'schedule':booking.schedule,
-        'seat':booking.seat,
+        'payment': payment, # This will be None if no payment exists
+        'bus': booking.schedule.bus,
+        'route': booking.schedule.route,
+        'schedule': booking.schedule,
+        'seat': booking.seat,
     }
     return render(request, 'invoice.html', context)
