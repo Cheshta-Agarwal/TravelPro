@@ -55,6 +55,21 @@
                             </div>
                         </div>
 
+    <div class="mb-4">
+    <label class="form-label">Select Your Destination</label>
+    <select name="drop_off_point" class="form-select" id="stopSelect">
+        <option value="" data-price="{{ schedule.price }}" selected>
+            Final Destination: {{ schedule.route.destination }} (₹{{ schedule.price }})
+        </option>
+        
+        {% for item in stops_with_prices %}
+            <option value="{{ item.id }}" data-price="{{ item.price }}">
+                {{ item.name }} (₹{{ item.price }})
+            </option>
+        {% endfor %}
+    </select>
+</div>
+
                         <div class="d-flex justify-content-between align-items-center mt-4">
     <div class="price-display">
         <span class="text-muted small d-block">Total Fare</span>
@@ -71,3 +86,27 @@
         ← Cancel and Return to Search
     </a>
 </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div></div>
+</div></body>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const stopSelect = document.getElementById('stopSelect');
+        const priceDisplay = document.querySelector('.price-display h4');
+
+        stopSelect.addEventListener('change', function() {
+            // 1. Get the price stored in the "data-price" attribute of the selected option
+            const selectedOption = this.options[this.selectedIndex];
+            const newPrice = selectedOption.getAttribute('data-price');
+
+            // 2. Update the Total Fare display on the screen
+            if (newPrice) {
+                priceDisplay.innerText = '₹' + newPrice;
+            }
+        });
+    });
+</script>
+</html>

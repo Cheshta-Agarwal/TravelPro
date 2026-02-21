@@ -70,6 +70,19 @@ class Seat(models.Model):
 
     def __str__(self):
         return f"{self.bus.bus_number} - Seat {self.seat_number}"
+
+class Stop(models.Model):
+    # Relates the stop to a specific Route (e.g., Delhi-Hyderabad)
+    route = models.ForeignKey('Route', on_delete=models.CASCADE, related_name='stops')
+    location_name = models.CharField(max_length=100)
+    stop_order = models.PositiveIntegerField(help_text="Sequence number (1, 2, 3...)")
+
+    class Meta:
+        ordering = ['stop_order'] # Automatically sorts stops by their sequence
+
+    def __str__(self):
+        return f"{self.location_name} ({self.route})"
+
     
 from django.db.models.signals import post_save
 from django.dispatch import receiver
