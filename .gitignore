@@ -12,5 +12,5 @@ db.sqlite3
 .vscode/
 
 */migrations/__pycache__/
-
+*/migrations/
 *.log
