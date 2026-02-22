@@ -2,33 +2,208 @@
 {% block title %}TravelPro | Home{% endblock %}
 
 {% block content %}
-<div class="hero-wrapper">
-    <div class="hero-card text-center">
-        <h1 class="hero-title">TravelPro</h1>
+<style>
+    :root {
+        --tp-ink: #0f172a;
+        --tp-ink-soft: #334155;
+        --tp-accent: #0ea5a5;
+        --tp-accent-strong: #0f766e;
+        --tp-gold: #f59e0b;
+        --tp-cream: #fff7ed;
+    }
 
-        <p class="hero-subtitle">
-            Book buses easily and manage your trips online.
+    .tp-hero {
+        position: relative;
+        min-height: 70vh;
+        border-radius: 28px;
+        overflow: hidden;
+        background:
+            linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(15, 118, 110, 0.65)),
+            url('https://commons.wikimedia.org/wiki/Special:FilePath/Road_to_mountains_(Unsplash).jpg') center/cover no-repeat;
+        box-shadow: 0 30px 60px rgba(15, 23, 42, 0.25);
+    }
+
+    .tp-hero-inner {
+        padding: 4.5rem clamp(1.5rem, 6vw, 5rem);
+        color: #f8fafc;
+        font-family: 'Manrope', sans-serif;
+    }
+
+    .tp-hero-title {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(2.5rem, 6vw, 4.5rem);
+        letter-spacing: 0.5px;
+        margin-bottom: 0.6rem;
+    }
+
+    .tp-hero-subtitle {
+        font-size: clamp(1.05rem, 2.2vw, 1.4rem);
+        max-width: 520px;
+        color: rgba(248, 250, 252, 0.86);
+        margin-bottom: 2rem;
+    }
+
+    .tp-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: rgba(15, 23, 42, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        color: #fff7ed;
+        padding: 0.35rem 0.9rem;
+        border-radius: 999px;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .tp-action .btn {
+        border-radius: 999px;
+        padding: 0.75rem 1.8rem;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }
+
+    .tp-action .btn-primary {
+        background: linear-gradient(135deg, var(--tp-accent), var(--tp-accent-strong));
+        border: none;
+        box-shadow: 0 18px 30px rgba(14, 165, 165, 0.35);
+    }
+
+    .tp-action .btn-outline-primary {
+        color: #e2e8f0;
+        border-color: rgba(248, 250, 252, 0.8);
+    }
+
+    .tp-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin-top: 2.2rem;
+    }
+
+    .tp-stat {
+        min-width: 150px;
+        border-left: 2px solid rgba(255, 255, 255, 0.35);
+        padding-left: 1rem;
+        color: rgba(248, 250, 252, 0.85);
+    }
+
+    .tp-stat strong {
+        display: block;
+        font-size: 1.4rem;
+        color: #fef3c7;
+    }
+
+    .tp-section {
+        margin-top: 4.5rem;
+        font-family: 'Manrope', sans-serif;
+        color: var(--tp-ink);
+    }
+
+    .tp-section h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(1.9rem, 3vw, 2.6rem);
+        margin-bottom: 1rem;
+    }
+
+    .tp-feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .tp-card {
+        background: #ffffff;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .tp-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 22px 45px rgba(15, 23, 42, 0.16);
+    }
+
+    .tp-card img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+    }
+
+    .tp-card-body {
+        padding: 1.4rem;
+    }
+
+    .tp-card-body h3 {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .tp-card-body p {
+        color: var(--tp-ink-soft);
+        margin-bottom: 0;
+    }
+
+    .tp-cta {
+        margin-top: 4rem;
+        background: var(--tp-cream);
+        border-radius: 24px;
+        padding: 2.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.5rem;
+    }
+
+    .tp-cta h3 {
+        font-family: 'Playfair Display', serif;
+        margin-bottom: 0.4rem;
+    }
+
+    .tp-cta .btn {
+        border-radius: 999px;
+        padding: 0.8rem 1.8rem;
+        background: linear-gradient(135deg, #f59e0b, #f97316);
+        border: none;
+        color: #1f2937;
+        font-weight: 700;
+    }
+
+    @media (max-width: 768px) {
+        .tp-hero {
+            min-height: auto;
+        }
+    }
+</style>
+
+<div class="tp-hero">
+    <div class="tp-hero-inner">
+        <span class="tp-pill">Ride smart - Pay fast - Travel easy</span>
+        <h1 class="tp-hero-title">TravelPro</h1>
+        <p class="tp-hero-subtitle">
+            Find the best bus routes, lock in seats in seconds, and keep every trip organized from one place.
         </p>
 
         {% if user.is_authenticated %}
         <p class="welcome-text">
-            Welcome, <strong>{{ user.username }}</strong>
+            Welcome back, <strong>{{ user.username }}</strong>
         </p>
 
-        <div class="d-flex justify-content-center gap-3 mt-4">
+        <div class="tp-action d-flex flex-wrap gap-3 mt-4">
             <!-- busop/urls.py -->
             <a href="{% url 'bus_search' %}" class="btn btn-primary btn-lg">
-                🔍 Search Buses
+                Search Buses
             </a>
 
             <!-- busop/urls.py -->
-            <a href="{% url 'booking_history' %}" class="btn btn-success btn-lg">
-                📄 My Bookings
+            <a href="{% url 'booking_history' %}" class="btn btn-outline-primary btn-lg">
+                My Bookings
             </a>
         </div>
-
         {% else %}
-        <div class="d-flex justify-content-center gap-3 mt-4">
+        <div class="tp-action d-flex flex-wrap gap-3 mt-4">
             <!-- main urls.py -->
             <a href="{% url 'login' %}" class="btn btn-primary btn-lg">
                 Login
@@ -40,6 +215,73 @@
             </a>
         </div>
         {% endif %}
+
+        <div class="tp-stats">
+            <div class="tp-stat">
+                <strong>1200+</strong>
+                Routes covered daily
+            </div>
+            <div class="tp-stat">
+                <strong>4.8 stars</strong>
+                Average rider rating
+            </div>
+            <div class="tp-stat">
+                <strong>24/7</strong>
+                Support on every trip
+            </div>
+        </div>
     </div>
 </div>
+
+<section class="tp-section">
+    <h2>Everything you need for a smooth ride</h2>
+    <p class="mb-4 text-secondary" style="max-width: 640px;">
+        Pick your seat, preview routes, and keep every booking in one place. We do the heavy lifting so you can focus on
+        the journey.
+    </p>
+
+    <div class="tp-feature-grid">
+        <article class="tp-card">
+            <img src="https://commons.wikimedia.org/wiki/Special:FilePath/CTA_Bus_Interior.jpg"
+                alt="Bus interior seating">
+            <div class="tp-card-body">
+                <h3>Smart Search</h3>
+                <p>Filter by route, time, and amenities to find the perfect coach in seconds.</p>
+            </div>
+        </article>
+        <article class="tp-card">
+            <img src="https://commons.wikimedia.org/wiki/Special:FilePath/A_bus_ticket_in_Tamil_Nadu.jpg"
+                alt="Bus ticket">
+            <div class="tp-card-body">
+                <h3>Instant Booking</h3>
+                <p>Book and pay fast with secure checkout and instant confirmations.</p>
+            </div>
+        </article>
+        <article class="tp-card">
+            <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Road_to_mountains_(Unsplash).jpg"
+                alt="Scenic road to mountains">
+            <div class="tp-card-body">
+                <h3>Trip Tracking</h3>
+                <p>Keep every ticket, route, and receipt stored for quick access later.</p>
+            </div>
+        </article>
+    </div>
+</section>
+
+<section class="tp-cta">
+    <div>
+        <h3>Ready for your next trip?</h3>
+        <p class="mb-0 text-secondary">Plan in minutes, travel with confidence.</p>
+    </div>
+    <a href="{% url 'bus_search' %}" class="btn btn-primary btn-lg">Start Searching</a>
+</section>
+
+<section class="tp-section mt-4">
+    <p class="text-muted" style="font-size: 0.9rem;">
+        Image credits:
+        Road to mountains (CC0, Andrew Ruiz) -
+        CTA Bus Interior (Public Domain, Wesha) -
+        A bus ticket in Tamil Nadu (CC BY-SA 3.0, Thamizhpparithi Maari).
+    </p>
+</section>
 {% endblock %}

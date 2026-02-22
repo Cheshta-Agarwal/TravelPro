@@ -2,36 +2,46 @@
 {% block title %}Login with OTP | TravelPro{% endblock %}
 
 {% block content %}
-<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
-    <div class="card p-4" style="width: 420px; border-radius: 16px;">
-        <h3 class="text-center mb-3">Login with OTP</h3>
-        <p class="text-center text-muted mb-4">
-            Enter your registered email to receive an OTP
-        </p>
+<div class="tp-shell">
+    <div class="tp-hero-slim mb-4">
+        <span class="tp-badge">One-time access</span>
+        <h1 class="tp-title mt-3">Login with OTP</h1>
+        <p class="tp-lead mb-0">Enter your registered email to receive a one-time code.</p>
+    </div>
 
-        {% if error %}
-        <div class="alert alert-danger">
-            {{ error }}
-        </div>
-        {% endif %}
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-8">
+            <div class="card tp-card">
+                <div class="card-body">
+                    <h3 class="mb-3">Request your OTP</h3>
 
-        <form method="post">
-            {% csrf_token %}
+                    {% if error %}
+                    <div class="alert alert-danger">
+                        {{ error }}
+                    </div>
+                    {% endif %}
 
-            <div class="mb-3">
-                <label class="form-label">Email</label>
-                <input type="email" name="email" class="form-control" placeholder="Enter registered email" required>
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control"
+                                placeholder="Enter registered email" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            Send OTP
+                        </button>
+                    </form>
+
+                    <p class="text-center mt-3 mb-0">
+                        Prefer password login?
+                        <a href="{% url 'login' %}">Login with password</a>
+                    </p>
+                </div>
             </div>
-
-            <button type="submit" class="btn btn-primary w-100">
-                Send OTP
-            </button>
-        </form>
-
-        <p class="text-center mt-3 mb-0">
-            Prefer password login?
-            <a href="{% url 'login' %}">Login with password</a>
-        </p>
+        </div>
     </div>
 </div>
 {% endblock %}

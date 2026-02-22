@@ -2,60 +2,62 @@
 {% block title %}Login | TravelPro{% endblock %}
 
 {% block content %}
-<div class="container d-flex justify-content-center align-items-center" style="min-height: 85vh;">
-    <div class="card p-4" style="width: 430px; border-radius: 16px;">
+<div class="tp-shell">
+    <div class="tp-hero-slim mb-4">
+        <span class="tp-badge">Secure access</span>
+        <h1 class="tp-title mt-3">Welcome back</h1>
+        <p class="tp-lead mb-0">Sign in to manage bookings, tickets, and upcoming trips.</p>
+    </div>
 
-        <h3 class="text-center mb-3">Login to TravelPro</h3>
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-8">
+            <div class="card tp-card">
+                <div class="card-body">
+                    <h3 class="mb-3">Login to TravelPro</h3>
 
-        {% if error %}
-        <div class="alert alert-danger">
-            {{ error }}
-        </div>
-        {% endif %}
+                    {% if error %}
+                    <div class="alert alert-danger">
+                        {{ error }}
+                    </div>
+                    {% endif %}
 
-        <!-- ================= USER LOGIN ================= -->
-        <form method="post">
-            {% csrf_token %}
+                    <form method="post">
+                        {% csrf_token %}
 
-            <div class="mb-3">
-                <label class="form-label">Username</label>
-                <input type="text" name="username" class="form-control" required>
+                        <div class="mb-3">
+                            <label class="form-label">Username</label>
+                            <input type="text" name="username" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+
+                        <button class="btn btn-primary w-100 mb-3">
+                            Login
+                        </button>
+                    </form>
+
+                    <div class="tp-divider my-3">OR</div>
+
+                    <a href="{% url 'otp_login' %}" class="btn btn-outline-primary w-100 mb-3">
+                        Login with OTP
+                    </a>
+
+                    <div class="tp-divider my-3">Admin</div>
+
+                    <a href="{% url 'admin_login_page' %}" class="btn btn-outline-dark w-100">
+                        Login as Admin
+                    </a>
+
+                    <p class="text-center mt-3 mb-0">
+                        Do not have an account?
+                        <a href="{% url 'register' %}">Register</a>
+                    </p>
+                </div>
             </div>
-
-            <div class="mb-3">
-                <label class="form-label">Password</label>
-                <input type="password" name="password" class="form-control" required>
-            </div>
-
-            <button class="btn btn-primary w-100 mb-3">
-                Login
-            </button>
-        </form>
-
-        <!-- ================= OTP LOGIN ================= -->
-        <div class="text-center text-muted my-3">
-            ── OR ──
         </div>
-
-        <a href="{% url 'otp_login' %}" class="btn btn-outline-primary w-100 mb-3">
-            Login with OTP
-        </a>
-
-        <!-- ================= ADMIN LOGIN ================= -->
-        <div class="text-center text-muted my-3">
-            ── ADMIN ──
-        </div>
-
-        <a href="{% url 'admin_login_page' %}" class="btn btn-outline-dark w-100">
-            Login as Admin
-        </a>
-
-        <!-- ================= FOOTER LINKS ================= -->
-        <p class="text-center mt-3 mb-0">
-            Don’t have an account?
-            <a href="{% url 'register' %}">Register</a>
-        </p>
-
     </div>
 </div>
 {% endblock %}

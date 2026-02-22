@@ -8,123 +8,209 @@
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
 
     <style>
-        .hero-wrapper {
-            min-height: calc(100vh - 120px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        :root {
+            --tp-ink: #0f172a;
+            --tp-ink-soft: #334155;
+            --tp-accent: #0ea5a5;
+            --tp-accent-strong: #0f766e;
+            --tp-gold: #f59e0b;
+            --tp-cream: #fff7ed;
+            --tp-bg: #f8fafc;
+            --tp-border: #e2e8f0;
         }
 
-        .hero-card {
-            background: white;
-            padding: 50px;
-            border-radius: 18px;
-            width: 100%;
-            max-width: 520px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        body {
+            font-family: "Manrope", sans-serif;
+            color: var(--tp-ink);
+            background:
+                radial-gradient(circle at 10% 10%, rgba(14, 165, 165, 0.08), transparent 45%),
+                radial-gradient(circle at 90% 10%, rgba(245, 158, 11, 0.12), transparent 45%),
+                var(--tp-bg);
         }
 
-        .hero-title {
-            font-size: 42px;
+        a {
+            color: var(--tp-accent-strong);
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: var(--tp-accent);
+        }
+
+        .tp-shell {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 48px 16px 64px;
+        }
+
+        .tp-title {
+            font-family: "Playfair Display", serif;
             font-weight: 700;
-            color: #2563eb;
+            margin-bottom: 0.5rem;
         }
 
-        .hero-subtitle {
-            font-size: 16px;
-            color: #6b7280;
-            margin-top: 10px;
+        .tp-lead {
+            color: var(--tp-ink-soft);
+            max-width: 640px;
         }
 
-        .welcome-text {
-            margin-top: 20px;
-            font-size: 18px;
-            color: #111827;
-        }
-
-        /* ===== Bus Search Page ===== */
-
-        .search-hero {
-            background: linear-gradient(90deg, #2563eb, #1e40af);
-            color: white;
-            padding: 60px 20px;
-            text-align: center;
-            border-radius: 0 0 30px 30px;
-        }
-
-        .search-hero h1 {
-            font-size: 36px;
-            font-weight: 700;
-        }
-
-        .search-hero p {
-            opacity: 0.9;
-        }
-
-        .search-container {
-            margin-top: -40px;
-        }
-
-        .search-card {
-            border-radius: 18px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
-        }
-
-        .form-control-lg {
-            border-radius: 12px;
-        }
-
-        /* ===== Sticky Footer ===== */
-        .footer {
+        .tp-card {
+            border: none;
+            border-radius: 22px;
             background: #ffffff;
-            padding: 15px 0;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+        }
+
+        .tp-card .card-body {
+            padding: 2rem;
+        }
+
+        .tp-card-header {
+            padding: 1.6rem 2rem;
+            border-radius: 22px 22px 0 0;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(15, 118, 110, 0.75));
+            color: #f8fafc;
+        }
+
+        .tp-hero-slim {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(14, 165, 165, 0.8));
+            color: #f8fafc;
+            border-radius: 26px;
+            padding: 2.8rem;
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+        }
+
+        .tp-divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--tp-ink-soft);
+            font-size: 0.8rem;
+            letter-spacing: 0.12rem;
+            text-transform: uppercase;
+        }
+
+        .tp-divider::before,
+        .tp-divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: rgba(148, 163, 184, 0.5);
+        }
+
+        .tp-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .tp-grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        }
+
+        .tp-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.35rem 0.85rem;
+            border-radius: 999px;
+            background: rgba(14, 165, 165, 0.12);
+            color: var(--tp-accent-strong);
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--tp-accent), var(--tp-accent-strong));
+            border: none;
+            box-shadow: 0 14px 24px rgba(14, 165, 165, 0.25);
+        }
+
+        .btn-outline-primary {
+            border-color: rgba(15, 118, 110, 0.45);
+            color: var(--tp-accent-strong);
+        }
+
+        .btn-outline-primary:hover {
+            background: rgba(14, 165, 165, 0.08);
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 12px;
+            border: 1px solid var(--tp-border);
+            padding: 0.75rem 0.95rem;
+        }
+
+        .table thead {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(15, 118, 110, 0.7));
+            color: #f8fafc;
+        }
+
+        .table thead th {
+            border-bottom: none;
+        }
+
+        .table tbody tr {
+            vertical-align: middle;
+        }
+
+        .tp-footer {
+            background: #ffffff;
+            padding: 18px 0;
             font-size: 14px;
-            color: #6b7280;
+            color: #64748b;
             border-top: 1px solid #e5e7eb;
         }
 
-        .search-container {
-            margin-bottom: 60px;
-        }
-
-        /* ===== Profile Page ===== */
-
-        .profile-container {
-            margin-top: 40px;
-            margin-bottom: 40px;
-        }
-
-        .profile-card {
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
-        }
-
-        .profile-avatar {
-            width: 90px;
-            height: 90px;
-            background: linear-gradient(135deg, #2563eb, #1e40af);
-            color: white;
-            font-size: 36px;
-            font-weight: 700;
+        .tp-avatar {
+            width: 84px;
+            height: 84px;
             border-radius: 50%;
+            background: linear-gradient(135deg, var(--tp-accent), var(--tp-accent-strong));
+            color: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
             margin: 0 auto;
         }
 
-        .profile-stats h5 {
-            font-weight: 700;
-            margin-bottom: 0;
+        .tp-ticket {
+            border: 1px solid var(--tp-border);
+            border-radius: 18px;
+            padding: 2rem;
+            background: #ffffff;
+        }
+
+        .tp-no-print {
+            display: inline-flex;
+        }
+
+        @media print {
+            nav,
+            footer,
+            .tp-no-print {
+                display: none !important;
+            }
+
+            body {
+                background: #ffffff;
+            }
+
+            .tp-card,
+            .tp-ticket {
+                box-shadow: none;
+                border: 1px solid #e2e8f0;
+            }
         }
     </style>
 </head>
-
-
 
 <body class="d-flex flex-column min-vh-100">
 
@@ -140,20 +226,16 @@
         {% endfor %}
     </div>
     {% endif %}
-    <!-- MAIN CONTENT -->
+
     <main class="flex-grow-1">
         {% block content %}{% endblock %}
     </main>
 
-    <!-- FOOTER -->
-    <footer class="footer text-center">
-        © 2026 TravelPro. All rights reserved.
+    <footer class="tp-footer text-center">
+        (c) 2026 TravelPro. All rights reserved.
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-
 </body>
-
-
 
 </html>

@@ -2,106 +2,102 @@
 {% block title %}Search Buses | TravelPro{% endblock %}
 
 {% block content %}
-
-<!-- Header -->
-<div class="search-hero">
-    <h1>Find Your Bus</h1>
-    <p>Search buses across cities in seconds</p>
-</div>
-
-<!-- Search Card -->
-<div class="container search-container">
-    <div class="card search-card p-4">
-        <form method="get" class="row g-3 align-items-end">
-
-            <div class="col-md-4">
-                <label class="form-label">From</label>
-                <input type="text" name="source" class="form-control form-control-lg" placeholder="Delhi" required>
-            </div>
-
-            <div class="col-md-4">
-                <label class="form-label">To</label>
-                <input type="text" name="destination" class="form-control form-control-lg" placeholder="Mumbai"
-                    required>
-            </div>
-
-            <div class="col-md-3">
-                <label class="form-label">Travel Date</label>
-                <input type="date" name="date" class="form-control form-control-lg" required>
-            </div>
-
-            <div class="col-md-1 d-grid">
-                <button class="btn btn-primary btn-lg">
-                    🔍
-                </button>
-            </div>
-
-        </form>
+<style>
+    .tp-hero-bus {
+        background:
+            linear-gradient(135deg, rgba(15, 23, 42, 0.88), rgba(14, 165, 165, 0.72)),
+            url('https://cdn.pixabay.com/photo/2020/11/30/00/53/bus-5789465_1280.jpg') center/cover no-repeat;
+    }
+</style>
+<div class="tp-shell">
+    <div class="tp-hero-slim tp-hero-bus mb-4">
+        <span class="tp-badge">Fast route search</span>
+        <h1 class="tp-title mt-3">Find your next bus</h1>
+        <p class="tp-lead mb-0">Search schedules across cities and pick the best departure time.</p>
     </div>
-    <!-- Search Results -->
-    <div class="container mt-5">
 
-        {% if schedules %}
-        <h4 class="mb-4">
-            {{ schedules|length }} bus{{ schedules|length|pluralize }} found
-        </h4>
+    <div class="card tp-card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">From</label>
+                    <input type="text" name="source" class="form-control" placeholder="Delhi" required>
+                </div>
 
-        {% for schedule in schedules %}
-        <div class="card mb-3 shadow-sm">
-            <div class="card-body row align-items-center">
+                <div class="col-md-4">
+                    <label class="form-label">To</label>
+                    <input type="text" name="destination" class="form-control" placeholder="Mumbai" required>
+                </div>
 
                 <div class="col-md-3">
-                    <strong>{{ schedule.bus.name }}</strong><br>
-                    <small class="text-muted">
-                        {{ schedule.route.source }} → {{ schedule.route.destination }}
-                    </small>
+                    <label class="form-label">Travel Date</label>
+                    <input type="date" name="date" class="form-control" required>
                 </div>
 
-                <div class="col-md-2">
-                    <small class="text-muted">Departure</small><br>
-                    {{ schedule.departure_time|date:"H:i" }}
-                </div>
-
-                <div class="col-md-2">
-                    <small class="text-muted">Price</small><br>
-                    ₹{{ schedule.price }}
-                </div>
-
-                <div class="col-md-2">
-                    <small class="text-muted">Seats</small><br>
-                    {% if schedule.is_sold_out %}
-                    <span class="text-danger">Sold Out</span>
-                    {% else %}
-                    {{ schedule.available_seats }} available
-                    {% endif %}
-                </div>
-
-                <div class="col-md-3 text-end">
-                    {% if not schedule.is_sold_out %}
-                    <a href="{% url 'create_booking' %}?schedule_id={{ schedule.id }}" class="btn btn-success">
-                        View Seats
-                    </a>
-                    {% else %}
-                    <button class="btn btn-secondary" disabled>
-                        Unavailable
+                <div class="col-md-1 d-grid">
+                    <button class="btn btn-primary">
+                        Search
                     </button>
-                    {% endif %}
                 </div>
-
-            </div>
+            </form>
         </div>
-        {% endfor %}
-
-        {% else %}
-        {% if source %}
-        <div class="alert alert-warning mt-4">
-            No buses found for your search.
-        </div>
-        {% endif %}
-        {% endif %}
-
     </div>
 
-</div>
+    {% if schedules %}
+    <h4 class="mb-4">
+        {{ schedules|length }} bus{{ schedules|length|pluralize }} found
+    </h4>
 
+    {% for schedule in schedules %}
+    <div class="card tp-card mb-3">
+        <div class="card-body row align-items-center">
+            <div class="col-md-3">
+                <strong>{{ schedule.bus.name }}</strong><br>
+                <small class="text-muted">
+                    {{ schedule.route.source }} -> {{ schedule.route.destination }}
+                </small>
+            </div>
+
+            <div class="col-md-2">
+                <small class="text-muted">Departure</small><br>
+                {{ schedule.departure_time|date:"H:i" }}
+            </div>
+
+            <div class="col-md-2">
+                <small class="text-muted">Price</small><br>
+                INR {{ schedule.price }}
+            </div>
+
+            <div class="col-md-2">
+                <small class="text-muted">Seats</small><br>
+                {% if schedule.is_sold_out %}
+                <span class="text-danger">Sold Out</span>
+                {% else %}
+                {{ schedule.available_seats }} available
+                {% endif %}
+            </div>
+
+            <div class="col-md-3 text-end">
+                {% if not schedule.is_sold_out %}
+                <a href="{% url 'create_booking' %}?schedule_id={{ schedule.id }}" class="btn btn-outline-primary">
+                    View Seats
+                </a>
+                {% else %}
+                <button class="btn btn-secondary" disabled>
+                    Unavailable
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    {% else %}
+    {% if source %}
+    <div class="alert alert-warning mt-4">
+        No buses found for your search.
+    </div>
+    {% endif %}
+    {% endif %}
+</div>
 {% endblock %}
