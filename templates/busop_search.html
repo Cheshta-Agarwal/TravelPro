@@ -9,6 +9,7 @@
             url('https://cdn.pixabay.com/photo/2020/11/30/00/53/bus-5789465_1280.jpg') center/cover no-repeat;
     }
 </style>
+
 <div class="tp-shell">
     <div class="tp-hero-slim tp-hero-bus mb-4">
         <span class="tp-badge">Fast route search</span>
@@ -16,33 +17,37 @@
         <p class="tp-lead mb-0">Search schedules across cities and pick the best departure time.</p>
     </div>
 
+    <!-- Search Form Card -->
     <div class="card tp-card mb-4">
         <div class="card-body">
-            <form method="get" class="row g-3 align-items-end">
-                <div class="col-md-4">
-                    <label class="form-label">From</label>
-                    <input type="text" name="source" class="form-control" placeholder="Delhi" required>
-                </div>
+            <form method="get">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label">From</label>
+                        <input type="text" name="source" class="form-control" placeholder="Delhi" required>
+                    </div>
 
-                <div class="col-md-4">
-                    <label class="form-label">To</label>
-                    <input type="text" name="destination" class="form-control" placeholder="Mumbai" required>
-                </div>
+                    <div class="col-md-4">
+                        <label class="form-label">To</label>
+                        <input type="text" name="destination" class="form-control" placeholder="Mumbai" required>
+                    </div>
 
-                <div class="col-md-3">
-                    <label class="form-label">Travel Date</label>
-                    <input type="date" name="date" class="form-control" required>
-                </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Travel Date</label>
+                        <input type="date" name="date" class="form-control" required>
+                    </div>
 
-                <div class="col-md-1 d-grid">
-                    <button class="btn btn-primary">
-                        Search
-                    </button>
+                    <div class="col-md-1 d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            Search
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- Results Section -->
     {% if schedules %}
     <h4 class="mb-4">
         {{ schedules|length }} bus{{ schedules|length|pluralize }} found
@@ -52,52 +57,68 @@
     <div class="card tp-card mb-3">
         <div class="card-body row align-items-center">
             <div class="col-md-3">
-                <strong>{{ schedule.bus.name }}</strong><br>
+                <strong>{{ schedule.bus.bus_number }}</strong>
+                <span class="badge bg-secondary">{{ schedule.bus.bus_type }}</span><br>
                 <small class="text-muted">
-                    {{ schedule.route.source }} -> {{ schedule.route.destination }}
+                    {{ schedule.route.source }} → {{ schedule.route.destination }}
                 </small>
             </div>
 
             <div class="col-md-2">
                 <small class="text-muted">Departure</small><br>
-                {{ schedule.departure_time|date:"H:i" }}
+                {{ schedule.departure_time|date:"D, d M Y" }}<br>
+                <strong>{{ schedule.departure_time|date:"H:i" }}</strong>
             </div>
 
             <div class="col-md-2">
                 <small class="text-muted">Price</small><br>
-                INR {{ schedule.price }}
+                <strong>₹{{ schedule.price }}</strong>
             </div>
 
             <div class="col-md-2">
                 <small class="text-muted">Seats</small><br>
                 {% if schedule.is_sold_out %}
-                <span class="text-danger">Sold Out</span>
+                <span class="text-danger fw-bold">Sold Out</span>
                 {% else %}
-                {{ schedule.available_seats }} available
+                <span class="text-success fw-bold">{{ schedule.available_seats }} available</span>
                 {% endif %}
             </div>
 
             <div class="col-md-3 text-end">
                 {% if not schedule.is_sold_out %}
-                <a href="{% url 'create_booking' %}?schedule_id={{ schedule.id }}" class="btn btn-outline-primary">
-                    View Seats
+                <a href="{% url 'create_booking' schedule.id %}" class="btn btn-outline-success">
+                    <i class="bi bi-ticket-perforated"></i> Select Seats
                 </a>
                 {% else %}
                 <button class="btn btn-secondary" disabled>
-                    Unavailable
+                    <i class="bi bi-x-circle"></i> Sold Out
                 </button>
                 {% endif %}
             </div>
         </div>
+
+        <!-- Via Stops (Optional) -->
+        {% if schedule.route.stops.all %}
+        <div class="card-footer bg-transparent border-top-0 pt-0">
+            <small class="text-muted">
+                <i class="bi bi-signpost-2"></i> Via:
+                {% for stop in schedule.route.stops.all %}
+                <span class="badge bg-light text-dark border">
+                    {{ stop.location_name }}
+                </span>
+                {% if not forloop.last %} → {% endif %}
+                {% endfor %}
+            </small>
+        </div>
+        {% endif %}
     </div>
     {% endfor %}
 
-    {% else %}
-    {% if source %}
-    <div class="alert alert-warning mt-4">
-        No buses found for your search.
+    {% elif source %}
+    <!-- Show this only if search was performed but no results -->
+    <div class="alert alert-info mt-4">
+        <i class="bi bi-info-circle"></i> No buses found for your search. Try different cities or dates.
     </div>
-    {% endif %}
     {% endif %}
 </div>
 {% endblock %}

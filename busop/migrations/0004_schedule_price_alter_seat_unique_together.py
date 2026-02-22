@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('busop', '0003_busop_user'),
+        ('busop', '0001_initial'),
     ]
 
     operations = [

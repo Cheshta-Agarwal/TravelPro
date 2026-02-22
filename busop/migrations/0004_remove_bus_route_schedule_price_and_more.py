@@ -6,14 +6,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('busop', '0003_busop_user'),
+        ('busop', '0001_initial'),
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='bus',
-            name='route',
-        ),
+        #migrations.RemoveField(
+        #     model_name='bus',
+        #     name='route',
+        # ),
         migrations.AddField(
             model_name='schedule',
             name='price',

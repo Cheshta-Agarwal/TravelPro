@@ -4,6 +4,7 @@
 {% block content %}
 <div class="tp-shell">
     <div class="card tp-card">
+
         <div class="tp-card-header text-center">
             <h4 class="mb-1">{{ schedule.bus.bus_number }}</h4>
             <p class="mb-0">{{ schedule.route.source }} to {{ schedule.route.destination }}</p>
@@ -11,6 +12,7 @@
         </div>
 
         <div class="card-body">
+
             {% if error %}
             <div class="alert alert-danger">
                 {{ error }}
@@ -29,8 +31,8 @@
                 <div class="row mb-3">
                     <div class="col">
                         <label class="form-label">Email</label>
-                        <input type="email" name="passenger_email" class="form-control"
-                            placeholder="email@example.com" required>
+                        <input type="email" name="passenger_email" class="form-control" placeholder="email@example.com"
+                            required>
                     </div>
                     <div class="col">
                         <label class="form-label">Phone</label>
@@ -48,30 +50,24 @@
 
                 <div class="mb-4">
                     <label class="form-label">Select Available Seat</label>
-                    <select name="seat" class="form-select" required>
-                        <option value="" selected disabled>
-                            Choose a seat...
-                        </option>
-
+                    <select name="seat_id" class="form-select" required>
+                        <option value="" selected disabled>Choose a seat…</option>
                         {% for seat in available_seats %}
-                        <option value="{{ seat.id }}">
-                            Seat {{ seat.seat_number }}
-                        </option>
+                        <option value="{{ seat.id }}">Seat {{ seat.seat_number }}</option>
                         {% endfor %}
                     </select>
-
                     <div class="form-text text-success">
                         Only showing available seats for this bus.
                     </div>
                 </div>
 
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-4">
+                <div class="d-flex justify-content-between align-items-center mt-4">
                     <div class="price-display">
                         <span class="text-muted small d-block">Total Fare</span>
                         <h4 class="mb-0">INR {{ schedule.price }}</h4>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm">
+                    <button type="submit" class="btn btn-primary btn-lg px-5">
                         Confirm and Book Ticket
                     </button>
                 </div>
@@ -82,6 +78,7 @@
                     </a>
                 </div>
             </form>
+
         </div>
     </div>
 </div>

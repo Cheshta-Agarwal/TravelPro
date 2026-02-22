@@ -2,7 +2,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.db import transaction
 from django.contrib import messages
 from django.utils import timezone
+from busop.models import Schedule,Seat,Stop
 from django.contrib.auth.decorators import login_required
+from decimal import Decimal
+# Create your views here.
+from user.models import Booking, Payment
 from django.contrib.auth import authenticate, login, logout
 
 from busop.models import Schedule, Seat
@@ -40,36 +44,22 @@ def admin_logout(request):
 # ---------------- BUS SEARCH ----------------
 
 def bus_search(request):
-    source = request.GET.get('source', '')
-    destination = request.GET.get('destination', '')
-    departure_date = request.GET.get('departure_date', '')
-    schedules = []
+    source = request.GET.get('source')
+    destination = request.GET.get('destination')
+    departure_date = request.GET.get('departure_date')
+
+    # Start with all schedules
+    schedules = Schedule.objects.all()
 
     if source and destination:
-        schedules = Schedule.objects.select_related(
-            'bus', 'route'
-        ).filter(
+        # Member 3: Added prefetch_related('route__stops') to optimize database hits
+        schedules = schedules.filter(
             route__source__icontains=source,
             route__destination__icontains=destination
-        )
+        ).select_related('bus', 'route').prefetch_related('route__stops')
 
-        if departure_date:
-            schedules = schedules.filter(
-                departure_time__date=departure_date
-            )
-
-        for schedule in schedules:
-            total_seats = Seat.objects.filter(
-                bus=schedule.bus
-            ).count()
-
-            booked_count = Booking.objects.filter(
-                schedule=schedule,
-                status='Confirmed'
-            ).count()
-
-            schedule.available_seats = total_seats - booked_count
-            schedule.is_sold_out = schedule.available_seats <= 0
+    if departure_date:
+        schedules = schedules.filter(departure_time__date=departure_date)
 
     return render(request, 'busop_search.html', {
         'schedules': schedules,
@@ -78,86 +68,72 @@ def bus_search(request):
         'departure_date': departure_date
     })
 
-
-# ---------------- CREATE BOOKING ----------------
-
 @login_required
-def create_booking(request):
-    schedule_id = request.GET.get('schedule_id')
-
-    if not schedule_id:
-        messages.error(request, "Invalid booking request.")
-        return redirect('bus_search')
-
+def create_booking(request, schedule_id):
     schedule = get_object_or_404(Schedule, id=schedule_id)
+    route_stops = schedule.route.stops.all().order_by('stop_order')
+    available_seats = Seat.objects.filter(bus=schedule.bus, is_available=True)
 
-    def get_available_seats():
-        return Seat.objects.filter(
-            bus=schedule.bus,
-            is_available=True
-        )
+    # Member 3: Define Tiered Discounts
+    discount_map = {
+        1: Decimal('0.60'), # 40% off
+        2: Decimal('0.75'), # 25% off
+    }
+    default_discount = Decimal('0.90') # 10% off for any other stop
 
-    if request.method == "POST":
-        passenger_name = request.POST.get('passenger_name')
-        passenger_email = request.POST.get('passenger_email')
-        passenger_phone = request.POST.get('passenger_phone')
+    if request.method == 'POST':
         seat_id = request.POST.get('seat')
+        stop_id = request.POST.get('drop_off_point')
+        passenger_name = request.POST.get('passenger_name')
+        
+        final_fare = schedule.price 
+        selected_stop = None
 
-        if not all([passenger_name, passenger_email, passenger_phone, seat_id]):
-            return render(request, 'create_booking.html', {
-                'schedule': schedule,
-                'available_seats': get_available_seats(),
-                'error': 'All fields are required.'
-            })
+        if stop_id:
+            selected_stop = get_object_or_404(Stop, id=stop_id)
+            # Use the tiered map logic
+            factor = discount_map.get(selected_stop.stop_order, default_discount)
+            final_fare = (schedule.price * factor).quantize(Decimal('1.00'))
 
-        try:
-            with transaction.atomic():
-                seat = Seat.objects.select_for_update().get(
-                    id=seat_id,
-                    bus=schedule.bus,
-                    is_available=True
-                )
+        with transaction.atomic():
+            selected_seat = get_object_or_404(Seat, id=seat_id, is_available=True)
 
-                booking = Booking.objects.create(
-                    user=request.user,
-                    schedule=schedule,
-                    seat=seat,
-                    passenger_name=passenger_name,
-                    passenger_email=passenger_email,
-                    passenger_phone=passenger_phone,
-                    status='Confirmed'
-                )
+            booking = Booking.objects.create(
+                user=request.user,
+                schedule=schedule,
+                seat=selected_seat,
+                drop_off_point=selected_stop, 
+                passenger_name=passenger_name,
+                status='Confirmed'
+            )
+            
+            selected_seat.is_available = False
+            selected_seat.save()
 
-                Payment.objects.create(
-                    booking=booking,
-                    amount=schedule.price,
-                    payment_status='Success'
-                )
+            Payment.objects.create(
+                booking=booking,
+                amount=final_fare, 
+                payment_method='Direct/On-Board',
+                payment_status='completed'
+            )
 
-                seat.is_available = False
-                seat.save(update_fields=['is_available'])
-
-            messages.success(request, "🎉 Booking confirmed successfully!")
             return redirect('booking_history')
 
-        except Seat.DoesNotExist:
-            return render(request, 'create_booking.html', {
-                'schedule': schedule,
-                'available_seats': get_available_seats(),
-                'error': 'Selected seat is no longer available.'
-            })
-
-        except Exception as e:
-            print("BOOKING ERROR:", e)
-            return render(request, 'create_booking.html', {
-                'schedule': schedule,
-                'available_seats': get_available_seats(),
-                'error': str(e)
-            })
+    # Prepare stops with their specific prices for the dropdown
+    stops_with_prices = []
+    for stop in route_stops:
+        factor = discount_map.get(stop.stop_order, default_discount)
+        price = (schedule.price * factor).quantize(Decimal('1.00'))
+        stops_with_prices.append({
+            'id': stop.id,
+            'name': stop.location_name,
+            'price': price
+        })
 
     return render(request, 'create_booking.html', {
         'schedule': schedule,
-        'available_seats': get_available_seats()
+        'available_seats': available_seats,
+        'stops_with_prices': stops_with_prices
     })
 
 
