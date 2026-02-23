@@ -8,9 +8,9 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.db.models import Prefetch
-from .forms import BusForm, RouteForm
-
-
+from .forms import BusForm, RouteForm, StopFormSet
+from user.models import transaction
+from .reports import get_admin_dashboard_stats
 
 class AdminDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
 	template_name = "administrator/dashboard.html"
@@ -23,6 +23,9 @@ class AdminDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
 
 		# Total users
 		context['total_users'] = User.objects.count()
+        
+		#Total booking 
+		context['stats'] = get_admin_dashboard_stats() 
 
 		# Total buses and routes (from busop app)
 		try:
@@ -162,15 +165,29 @@ class RouteListView(StaffRequiredMixin, ListView):
 
 
 class RouteCreateView(StaffRequiredMixin, CreateView):
-	form_class = RouteForm
-	template_name = 'administrator/route_form.html'
-	success_url = reverse_lazy('administrator:route_list')
+    model = apps.get_model('busop', 'Route')
+    form_class = RouteForm
+    template_name = 'administrator/route_form.html'
+    success_url = reverse_lazy('administrator:route_list')
 
-	def form_valid(self, form):
-		response = super().form_valid(form)
-		messages.success(self.request, 'Route created successfully.')
-		return response
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        if self.request.POST:
+            data['stops'] = StopFormSet(self.request.POST)
+        else:
+            data['stops'] = StopFormSet()
+        return data
 
+    def form_valid(self, form):
+        context = self.get_context_data()
+        stops = context['stops']
+        with transaction.atomic():
+            self.object = form.save()
+            if stops.is_valid():
+                stops.instance = self.object
+                stops.save()
+        messages.success(self.request, 'Route and Stops created successfully.')
+        return super().form_valid(form)
 
 class RouteUpdateView(StaffRequiredMixin, UpdateView):
 	form_class = RouteForm
@@ -368,3 +385,17 @@ def delete_user_view(request, pk):
 	target.save(update_fields=['is_active'])
 	messages.success(request, f"User '{target.username}' deactivated (soft delete).")
 	return redirect(reverse('administrator:user_list'))
+
+# Add this to administrator/views.py
+class AdminBookingListView(StaffRequiredMixin, ListView):
+    template_name = 'administrator/booking_list.html'
+    context_object_name = 'bookings'
+    
+    def get_queryset(self):
+        Booking = apps.get_model('user', 'Booking')
+        # Only use fields that actually exist in your model
+        return Booking.objects.select_related(
+            'user', 
+            'schedule__route', 
+            'seat'
+        ).all().order_by('-id')

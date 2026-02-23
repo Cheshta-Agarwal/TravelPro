@@ -3,53 +3,73 @@
 {% block styles %}
 {{ block.super }}
 <style>
-  .page-panel{max-width:760px;background:#fff;padding:20px;border-radius:10px;box-shadow:0 6px 16px rgba(2,6,23,0.06);margin:1.25rem auto}
-  form .form-control, form .form-select{margin-top:.25rem}
+  .page-panel{max-width:850px;background:#fff;padding:25px;border-radius:12px;box-shadow:0 6px 16px rgba(2,6,23,0.06);margin:1.25rem auto}
+  .stop-row { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; margin-bottom: 10px; }
+  .form-control, .form-select{margin-top:.25rem}
   @media (max-width:767px){.page-panel{margin:.75rem;padding:14px}}
 </style>
 {% endblock %}
 
 {% block content %}
   <div class="container"><div class="page-panel">
-    <h4 class="mb-3">{% if form.instance.pk %}Edit Route{% else %}Add Route{% endif %}</h4>
-
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} auto-dismiss">{{ message }}</div>
-      {% endfor %}
-    {% endif %}
+    <h4 class="mb-4">{% if form.instance.pk %}Edit Route{% else %}Add Route{% endif %}</h4>
 
     <form method="post">
       {% csrf_token %}
-      <div class="row">
+      
+      <div class="row border-bottom pb-3 mb-4">
+        <h6 class="text-primary mb-3">Main Route Details</h6>
         {% for field in form %}
-          <div class="mb-3 col-md-6">
+          <div class="mb-3 col-md-4">
             {{ field.label_tag }}
             {{ field }}
-            {% if field.errors %}
-              <div class="text-danger small">{{ field.errors }}</div>
-            {% endif %}
+            {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
           </div>
         {% endfor %}
       </div>
 
-      <div class="mt-3">
-        <button class="btn btn-primary" type="submit">Save</button>
+      <div class="mb-4">
+        <h6 class="text-primary mb-3">Intermediate Stops (Via)</h6>
+        {{ stops.management_form }} <div id="stops-container">
+          {% for stop_form in stops %}
+            <div class="stop-row row align-items-end">
+              {% for hidden in stop_form.hidden_fields %}{{ hidden }}{% endfor %}
+              
+              <div class="col-md-5">
+                {{ stop_form.location_name.label_tag }}
+                {{ stop_form.location_name }}
+              </div>
+              <div class="col-md-3">
+                {{ stop_form.stop_order.label_tag }}
+                {{ stop_form.stop_order }}
+              </div>
+              {% if stops.can_delete %}
+              <div class="col-md-4 text-danger small">
+                {{ stop_form.DELETE }} Remove Stop
+              </div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <button class="btn btn-primary px-4" type="submit">Save Route & Stops</button>
         <a class="btn btn-secondary" href="{% url 'administrator:route_list' %}">Cancel</a>
       </div>
     </form>
-    </div></div>
+  </div></div>
 {% endblock %}
 
 {% block scripts %}
-{{ block.super }}  <!-- This includes base page scripts -->
+{{ block.super }}
 <script>
-    // add bootstrap form classes to Django form fields for nicer look
+    // Applying Bootstrap classes dynamically
     (function(){
       var form = document.querySelector('form');
       if(!form) return;
       form.querySelectorAll('input,select,textarea').forEach(function(el){
-        if(!el.classList.contains('form-control') && el.type!='checkbox' && el.type!='radio' && el.tagName.toLowerCase()!=='button'){
+        if(!el.classList.contains('form-control') && el.type!='checkbox' && el.type!='radio'){
           el.classList.add('form-control');
         }
         if(el.tagName.toLowerCase()==='select') el.classList.add('form-select');

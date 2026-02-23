@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
     AdminDashboardView,
-    BusListView, BusCreateView, BusUpdateView, BusDeleteView,
+    BusListView, BusCreateView, BusUpdateView, BusDeleteView,AdminBookingListView,
     RouteListView, RouteCreateView, RouteUpdateView, RouteDeleteView,
     UserListView, UserDetailView, ScheduleDeleteView, ScheduleCreateView,ScheduleListView ,toggle_active_view, toggle_staff_view, delete_user_view,
 )
@@ -32,4 +32,6 @@ urlpatterns = [
     path('schedules/', ScheduleListView.as_view(), name='schedule_list'),
     path('schedules/add/', ScheduleCreateView.as_view(), name='schedule_create'),
     path('schedules/delete/<int:pk>/', ScheduleDeleteView.as_view(), name='schedule_delete'),
+
+    path("bookings/", AdminBookingListView.as_view(), name="booking_list"),
 ]
