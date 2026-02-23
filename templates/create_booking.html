@@ -45,8 +45,7 @@
 
                 <div class="mb-3">
                     <h5>Fare Summary</h5>
-                    <p class="mb-1">Base Fare: INR {{ schedule.price }}</p>
-                    <h6 class="fw-bold">Total: INR {{ schedule.price }}</h6>
+                    <h6 class="fw-bold">Total: <span id="fareTotal">&#8377; {{ schedule.price }}</span></h6>
                 </div>
 
                 <!-- ===== SEAT SELECTION WITH BUS-LIKE LAYOUT ===== -->
@@ -60,10 +59,11 @@
                     {% if stops_with_prices %}
                     <div class="mb-3">
                         <label class="form-label">Drop-off Point</label>
-                        <select name="drop_off_point" class="form-select">
+                        <select name="drop_off_point" class="form-select" id="dropOffPoint">
                             <option value="">Final Destination</option>
                             {% for stop in stops_with_prices %}
-                            <option value="{{ stop.id }}">{{ stop.name }} - ₹{{ stop.price }}</option>
+                            <option value="{{ stop.id }}" data-price="{{ stop.price }}">{{ stop.name }}
+                            </option>
                             {% endfor %}
                         </select>
                     </div>
@@ -244,7 +244,7 @@
                 <div class="d-flex justify-content-between align-items-center mt-4">
                     <div>
                         <span class="text-muted small">Total Fare</span>
-                        <h4 class="mb-0">INR {{ schedule.price }}</h4>
+                        <h4 class="mb-0" id="fareBottom">INR {{ schedule.price }}</h4>
                     </div>
 
                     <button type="submit" class="btn btn-success btn-lg px-5" id="submitBtn">
@@ -305,10 +305,34 @@
             selectedSeatDisplay.innerHTML = '✓ Selected seat: ' + seatNumber;
         }
     }
-
     // Form validation
     document.addEventListener('DOMContentLoaded', function () {
         const form = document.querySelector('form');
+        const dropOffSelect = document.getElementById('dropOffPoint');
+        const fareTotal = document.getElementById('fareTotal');
+        const fareBottom = document.getElementById('fareBottom');
+        const baseFare = '{{ schedule.price }}';
+
+        function updateFareDisplay() {
+            if (!fareTotal || !fareBottom) {
+                return;
+            }
+
+            let selectedFare = baseFare;
+            if (dropOffSelect && dropOffSelect.value) {
+                const selectedOption = dropOffSelect.options[dropOffSelect.selectedIndex];
+                selectedFare = selectedOption.getAttribute('data-price') || baseFare;
+            }
+
+            fareTotal.innerText = 'INR ' + selectedFare;
+            fareBottom.innerText = 'INR ' + selectedFare;
+        }
+
+        if (dropOffSelect) {
+            dropOffSelect.addEventListener('change', updateFareDisplay);
+        }
+        updateFareDisplay();
+
         if (form) {
             form.addEventListener('submit', function (e) {
                 const seatId = document.getElementById('selectedSeat').value;

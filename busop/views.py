@@ -5,7 +5,8 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from decimal import Decimal
-
+from django.core.mail import send_mail
+from django.conf import settings
 from busop.models import Schedule, Seat, Stop
 from user.models import Booking, Payment
 
@@ -91,11 +92,12 @@ def bus_search(request):
 
 # ================= CREATE BOOKING =================
 
+# ================= CREATE BOOKING =================
+
 @login_required
 def create_booking(request, schedule_id):
     schedule = get_object_or_404(Schedule, id=schedule_id)
 
-    # ===== UPDATED SECTION START =====
     # Get all seats for this bus
     all_seats = Seat.objects.filter(
         bus=schedule.bus
@@ -115,7 +117,6 @@ def create_booking(request, schedule_id):
 
     # Get only available seats for selection
     available_seats = [seat for seat in seats_with_status if not seat.is_booked]
-    # ===== UPDATED SECTION END =====
 
     route_stops = schedule.route.stops.all().order_by("stop_order")
 
@@ -126,12 +127,15 @@ def create_booking(request, schedule_id):
     }
     default_discount = Decimal("0.90")  # 10% off
 
+    # Handle POST request (form submission)
     if request.method == "POST":
         seat_id = request.POST.get("seat")
         stop_id = request.POST.get("drop_off_point")
         passenger_name = request.POST.get("passenger_name")
+        passenger_email = request.POST.get("passenger_email")
+        passenger_phone = request.POST.get("passenger_phone")
 
-        if not all([seat_id, passenger_name]):
+        if not all([seat_id, passenger_name, passenger_email, passenger_phone]):
             messages.error(request, "All fields are required.")
             return redirect(request.path)
 
@@ -172,6 +176,8 @@ def create_booking(request, schedule_id):
                     schedule=schedule,
                     seat=selected_seat,
                     passenger_name=passenger_name,
+                    passenger_email=passenger_email,
+                    passenger_phone=passenger_phone,
                     status="Confirmed"
                 )
 
@@ -185,8 +191,24 @@ def create_booking(request, schedule_id):
                     payment_status="Completed"
                 )
 
-            messages.success(request, "🎉 Booking confirmed successfully!")
-            return redirect("booking_history")
+            send_mail(
+    subject="Booking Confirmation - TravelPro",
+    message=(
+        f"Hi {request.user.username},\n\n"
+        f"Your booking has been successfully confirmed!\n\n"
+        f"Bus Number: {schedule.bus.bus_number}\n"
+        f"Route: {schedule.route.source} to {schedule.route.destination}\n"
+        f"Departure: {schedule.departure_time.strftime('%Y-%m-%d %H:%M')}\n"
+        f"Seat Number: {selected_seat.seat_number}\n"
+        f"Fare Paid: ₹{final_fare}\n\n"
+        f"Thank you for choosing TravelPro.\n"
+        f"Have a safe journey!"
+    ),
+    from_email=settings.EMAIL_HOST_USER,
+    recipient_list=[request.user.email],
+    fail_silently=False,
+) 
+            return redirect("booking_history")       
 
         except Seat.DoesNotExist:
             messages.error(
@@ -195,7 +217,7 @@ def create_booking(request, schedule_id):
             )
             return redirect(request.path)
 
-    # Prepare stop dropdown with prices
+    # Prepare stop dropdown with prices (for GET request)
     stops_with_prices = []
     for stop in route_stops:
         factor = discount_map.get(stop.stop_order, default_discount)
@@ -206,13 +228,12 @@ def create_booking(request, schedule_id):
             "price": price
         })
 
+    # For GET request, just render the page
     return render(request, "create_booking.html", {
         "schedule": schedule,
-        # ===== UPDATED SECTION START =====
-        "all_seats": seats_with_status,  # All seats with is_booked flag
-        "available_seats": available_seats,  # Only available seats
-        "booked_seat_ids": list(booked_seat_ids),  # List of booked seat IDs
-        # ===== UPDATED SECTION END =====
+        "all_seats": seats_with_status,
+        "available_seats": available_seats,
+        "booked_seat_ids": list(booked_seat_ids),
         "stops_with_prices": stops_with_prices
     })
 
@@ -227,6 +248,8 @@ def booking_history(request):
         "schedule__bus",
         "schedule__route",
         "seat"
+    ).prefetch_related(
+        "payment_set"
     ).order_by("-id")
 
     return render(request, "booking_history.html", {

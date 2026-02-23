@@ -157,4 +157,4 @@ def otp_verify_view(request):
     return render(request, "otp_verify.html", {"error": error})
 
 
-   
+

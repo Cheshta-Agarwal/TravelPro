@@ -41,7 +41,7 @@
                             </td>
                             <td>{{ booking.schedule.departure_time|date:"D, d M Y" }}</td>
                             <td>{{ booking.seat.seat_number }}</td>
-                            <td>INR {{ booking.schedule.price }}</td>
+                            <td>INR {{ booking.payment_set.first.amount|default:booking.schedule.price }}</td>
                             <td>
                                 <span
                                     class="badge {% if booking.status == 'Confirmed' %}bg-success{% else %}bg-secondary{% endif %}">
