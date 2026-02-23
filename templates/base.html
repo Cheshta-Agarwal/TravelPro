@@ -14,6 +14,44 @@
         rel="stylesheet">
 
     <style>
+        .seat-layout {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            max-width: 260px;
+            margin-top: 15px;
+        }
+
+        .seat {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            border: 2px solid #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+            background: white;
+            color: #2563eb;
+        }
+
+        .seat:hover {
+            background: #e0e7ff;
+        }
+
+        .seat-selected {
+            background: #2563eb;
+            color: white;
+        }
+
+        .seat-booked {
+            background: #e5e7eb;
+            border-color: #9ca3af;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+
         :root {
             --tp-ink: #0f172a;
             --tp-ink-soft: #334155;
@@ -86,6 +124,23 @@
             box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
         }
 
+        /* Fix for hero section text */
+        .tp-hero-slim .tp-title,
+        .tp-hero-slim .tp-lead,
+        .tp-hero-slim .tp-badge {
+            color: #ffffff !important;
+            /* Force white text */
+            opacity: 1 !important;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            /* Add shadow for better readability */
+        }
+
+        .tp-hero-slim .tp-badge {
+            background: rgba(255, 255, 255, 0.2);
+            /* Light background for badge */
+            color: #ffffff !important;
+        }
+
         .tp-divider {
             display: flex;
             align-items: center;
@@ -101,7 +156,7 @@
             content: "";
             flex: 1;
             height: 1px;
-            background: rgba(148, 163, 184, 0.5);
+            background: rgba(255, 255, 255, 0.5);
         }
 
         .tp-grid {
@@ -193,6 +248,7 @@
         }
 
         @media print {
+
             nav,
             footer,
             .tp-no-print {
@@ -209,7 +265,77 @@
                 border: 1px solid #e2e8f0;
             }
         }
+
+        .seat-map {
+            display: flex;
+            flex-wrap: wrap;
+            max-width: 260px;
+            margin-top: 15px;
+        }
+
+        .seat-wrapper {
+            width: 50px;
+            margin: 6px;
+        }
+
+        .aisle {
+            width: 30px;
+        }
+
+        /* Seat shape */
+        .seat-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 6px 6px 10px 10px;
+            border: 2px solid #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: #2563eb;
+            cursor: pointer;
+            background: #ffffff;
+            transition: all 0.2s ease;
+        }
+
+        /* Hover */
+        .seat-icon:hover {
+            background: #e0e7ff;
+        }
+
+        /* Selected */
+        .seat-selected {
+            background: #2563eb !important;
+            color: #ffffff;
+        }
+
+        /* Booked */
+        .seat-booked {
+            background: #e5e7eb;
+            border-color: #9ca3af;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
     </style>
+    <script>
+        let selectedSeat = null;
+
+        function selectSeat(el) {
+            if (el.classList.contains("seat-booked")) return;
+
+            if (selectedSeat) {
+                selectedSeat.classList.remove("seat-selected");
+            }
+
+            el.classList.add("seat-selected");
+            selectedSeat = el;
+
+            document.getElementById("selectedSeat").value =
+                el.getAttribute("data-seat-id");
+        }
+    </script>
+    </script>
 </head>
 
 <body class="d-flex flex-column min-vh-100">
