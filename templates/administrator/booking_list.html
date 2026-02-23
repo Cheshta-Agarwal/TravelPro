@@ -79,10 +79,12 @@
 <table class="table table-hover align-middle">
     <thead>
         <tr>
-            <th>Passenger Name & Drop-off</th>
+            <th>Passenger Name</th>
             <th>Contact</th>
             <th>Main Route</th>
+            <th>Drop-off Point</th>
             <th>Status</th>
+            <th>Price</th>
         </tr>
     </thead>
     <tbody>
@@ -90,8 +92,10 @@
         <tr>
             <td><strong>{{ booking.passenger_name }}</strong></td>
             <td>{{ booking.passenger_phone }}</td>
-            <td>{{ booking.schedule.route.source }} → {{ booking.schedule.route.destination }}</td>
+            <td>{{ booking.schedule.route.source }} to {{ booking.schedule.route.destination }}</td>
+            <td>{{ booking.display_drop_off }}</td>
             <td>{{ booking.status }}</td>
+            <td>INR {{ booking.payment_set.first.amount|default:booking.schedule.price }}</td>
         </tr>
         {% endfor %}
     </tbody>

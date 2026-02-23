@@ -255,6 +255,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required, user_passes_test
+from decimal import Decimal
 from django.http import HttpResponseForbidden
 
 
@@ -392,12 +393,46 @@ def delete_user_view(request, pk):
 class AdminBookingListView(StaffRequiredMixin, ListView):
     template_name = 'administrator/booking_list.html'
     context_object_name = 'bookings'
-    
+
+    @staticmethod
+    def _resolve_drop_off(booking):
+        payment = booking.payment_set.first()
+        destination = booking.schedule.route.destination
+        if not payment:
+            return destination
+
+        base_price = booking.schedule.price.quantize(Decimal("1.00"))
+        paid_amount = payment.amount.quantize(Decimal("1.00"))
+        if paid_amount == base_price:
+            return destination
+
+        discount_map = {
+            1: Decimal("0.60"),
+            2: Decimal("0.75"),
+        }
+        default_discount = Decimal("0.90")
+
+        for stop in booking.schedule.route.stops.all():
+            factor = discount_map.get(stop.stop_order, default_discount)
+            expected = (base_price * factor).quantize(Decimal("1.00"))
+            if expected == paid_amount:
+                return stop.location_name
+
+        return destination
+
     def get_queryset(self):
         Booking = apps.get_model('user', 'Booking')
         # Only use fields that actually exist in your model
-        return Booking.objects.select_related(
+        queryset = Booking.objects.select_related(
             'user', 
             'schedule__route', 
             'seat'
+        ).prefetch_related(
+            'payment_set',
+            'schedule__route__stops'
         ).all().order_by('-id')
+
+        for booking in queryset:
+            booking.display_drop_off = self._resolve_drop_off(booking)
+
+        return queryset
