@@ -1,17 +1,19 @@
-
-from django.shortcuts import render
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.views.generic import TemplateView
-from django.contrib.auth.models import User
-from django.db.models import Count, Sum, CharField, BooleanField
 from django.apps import apps
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from django.urls import reverse_lazy
 from django.contrib import messages
-from django.db.models import Prefetch
-from .forms import BusForm, RouteForm, StopFormSet
-from user.models import transaction
-from .reports import get_admin_dashboard_stats
+from django.contrib.auth import get_user_model
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.db import transaction
+from django.db.models import Sum, CharField, Prefetch
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse_lazy, reverse
+from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DeleteView
+from django.views.decorators.http import require_POST
+from reports import get_admin_dashboard_stats
+from decimal import Decimal
+from .forms import BusForm, RouteForm, ScheduleForm, StopFormSet
+
+UserModel = get_user_model()
 
 class AdminDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
 	template_name = "administrator/dashboard.html"
@@ -23,11 +25,10 @@ class AdminDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
 		context = super().get_context_data(**kwargs)
 
 		# Total users
-		context['total_users'] = User.objects.count()
-        
-		#Total booking 
-		context['stats'] = get_admin_dashboard_stats() 
+		context['total_users'] = UserModel.objects.count()
 
+		#Total booking 
+		context['stats'] = get_admin_dashboard_stats()
 		# Total buses and routes (from busop app)
 		try:
 			Bus = apps.get_model('busop', 'Bus')
@@ -61,9 +62,7 @@ class AdminDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
 					break
 
 			if status_field is not None:
-				if isinstance(status_field, BooleanField):
-					booking_qs = booking_qs.filter(status=True)
-				elif isinstance(status_field, CharField):
+				if isinstance(status_field, CharField):
 					booking_qs = booking_qs.filter(status__iexact='confirmed')
 
 			total_bookings = booking_qs.count()
@@ -217,10 +216,6 @@ class RouteDeleteView(StaffRequiredMixin, DeleteView):
 		messages.success(self.request, 'Route deleted successfully.')
 		return super().delete(request, *args, **kwargs)
 
-from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, DeleteView
-from .forms import ScheduleForm  # We will create this next
-
 class ScheduleListView(StaffRequiredMixin, ListView):
     template_name = 'administrator/schedule_list.html'
     context_object_name = 'schedules'
@@ -246,19 +241,6 @@ class ScheduleDeleteView(StaffRequiredMixin, DeleteView):
     def get_queryset(self):
         Schedule = apps.get_model('busop', 'Schedule')
         return Schedule.objects.all()
-
-# -----------------------
-# Administrator: User management
-# -----------------------
-from django.contrib.auth import get_user_model
-from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse
-from django.views.decorators.http import require_POST
-from django.contrib.auth.decorators import login_required, user_passes_test
-from decimal import Decimal
-from django.http import HttpResponseForbidden
-
-
 
 class UserListView(StaffRequiredMixin, ListView):
 	template_name = 'administrator/user_list.html'
