@@ -15,7 +15,6 @@ class RouteForm(forms.ModelForm):
         model = Route
         fields = ['source', 'destination', 'distance']
 
-from django import forms
 from busop.models import Schedule
 
 class ScheduleForm(forms.ModelForm):

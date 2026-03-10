@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.conf import settings
 from user.models import Booking
@@ -10,6 +10,8 @@ from django.contrib import messages
 
 import random
 import time
+
+UserModel = get_user_model()
 
 
 
@@ -24,10 +26,10 @@ def register(request):
         email = request.POST['email']
         password = request.POST['password']
 
-        if User.objects.filter(username=username).exists():
+        if UserModel.objects.filter(username=username).exists():
             error = "Username already exists"
         else:
-            user = User.objects.create_user(
+            user = UserModel.objects.create_user(
                 username=username,
                 email=email,
                 password=password
@@ -102,7 +104,7 @@ def otp_login_view(request):
 
     if request.method == "POST":
         email = request.POST.get("email")
-        user = User.objects.filter(email=email).first()
+        user = UserModel.objects.filter(email=email).first()
 
         if not user:
             error = "No user found with this email"
@@ -145,7 +147,7 @@ def otp_verify_view(request):
             error = "Invalid OTP"
             return render(request, "otp_verify.html", {"error": error})
 
-        user = User.objects.get(id=user_id)
+        user = UserModel.objects.get(id=user_id)
         login(request, user)
         request.session.pop("otp", None)
         request.session.pop("otp_user_id", None)

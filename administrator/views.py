@@ -1,17 +1,17 @@
-
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import TemplateView
-from django.contrib.auth.models import User
 from django.db.models import Count, Sum, CharField, BooleanField
 from django.apps import apps
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.contrib import messages
 from django.db.models import Prefetch
-from .forms import BusForm, RouteForm
+from .forms import BusForm, RouteForm, ScheduleForm
 
-
+from django.contrib.auth import get_user_model
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required, user_passes_test
 
 class AdminDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
 	template_name = "administrator/dashboard.html"
@@ -23,7 +23,8 @@ class AdminDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
 		context = super().get_context_data(**kwargs)
 
 		# Total users
-		context['total_users'] = User.objects.count()
+		UserModel = get_user_model()
+		context['total_users'] = UserModel.objects.count()
 
 		# Total buses and routes (from busop app)
 		try:
@@ -58,9 +59,7 @@ class AdminDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
 					break
 
 			if status_field is not None:
-				if isinstance(status_field, BooleanField):
-					booking_qs = booking_qs.filter(status=True)
-				elif isinstance(status_field, CharField):
+				if isinstance(status_field, CharField):
 					booking_qs = booking_qs.filter(status__iexact='confirmed')
 
 			total_bookings = booking_qs.count()
@@ -200,10 +199,6 @@ class RouteDeleteView(StaffRequiredMixin, DeleteView):
 		messages.success(self.request, 'Route deleted successfully.')
 		return super().delete(request, *args, **kwargs)
 
-from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, DeleteView
-from .forms import ScheduleForm  # We will create this next
-
 class ScheduleListView(StaffRequiredMixin, ListView):
     template_name = 'administrator/schedule_list.html'
     context_object_name = 'schedules'
@@ -229,17 +224,6 @@ class ScheduleDeleteView(StaffRequiredMixin, DeleteView):
     def get_queryset(self):
         Schedule = apps.get_model('busop', 'Schedule')
         return Schedule.objects.all()
-
-# -----------------------
-# Administrator: User management
-# -----------------------
-from django.contrib.auth import get_user_model
-from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse
-from django.views.decorators.http import require_POST
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.http import HttpResponseForbidden
-
 
 
 class UserListView(StaffRequiredMixin, ListView):
