@@ -1,0 +1,102 @@
+<style>
+    /* Table Container Styling */
+    .table-container {
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        padding: 20px;
+        margin-top: 20px;
+    }
+
+    /* Table Header Styling */
+    .table thead th {
+        background-color: #f8f9fa;
+        color: #495057;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+        border-top: none;
+        padding: 15px;
+    }
+
+    /* Table Body Cell Styling */
+    .table tbody td {
+        padding: 18px 15px;
+        vertical-align: middle;
+        font-size: 0.95rem;
+        color: #333;
+        border-bottom: 1px solid #f1f1f1;
+    }
+
+    /* Hover Effect */
+    .table-hover tbody tr:hover {
+        background-color: #f1f7ff !important;
+        transition: background-color 0.2s ease;
+    }
+
+    /* Status & Drop-off Badge Styling */
+    .badge {
+        padding: 8px 12px;
+        font-weight: 500;
+        border-radius: 6px;
+    }
+
+    .badge.bg-info {
+        background-color: #e0f7fa !important;
+        color: #006064 !important;
+    }
+
+    .badge.bg-success {
+        background-color: #e8f5e9 !important;
+        color: #2e7d32 !important;
+    }
+
+    .badge.bg-warning {
+        background-color: #fff3e0 !important;
+        color: #ef6c00 !important;
+    }
+
+    .badge.bg-secondary {
+        background-color: #f5f5f5 !important;
+        color: #616161 !important;
+        border: 1px solid #ddd;
+    }
+
+    /* Route Arrow Styling */
+    .route-arrow {
+        color: #0d6efd;
+        margin: 0 8px;
+        font-weight: bold;
+    }
+
+    /* Contact Details Styling */
+    .contact-info small {
+        display: block;
+        line-height: 1.4;
+    }
+</style>
+<table class="table table-hover align-middle">
+    <thead>
+        <tr>
+            <th>Passenger Name</th>
+            <th>Contact</th>
+            <th>Main Route</th>
+            <th>Drop-off Point</th>
+            <th>Status</th>
+            <th>Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for booking in bookings %}
+        <tr>
+            <td><strong>{{ booking.passenger_name }}</strong></td>
+            <td>{{ booking.passenger_phone }}</td>
+            <td>{{ booking.schedule.route.source }} to {{ booking.schedule.route.destination }}</td>
+            <td>{{ booking.display_drop_off }}</td>
+            <td>{{ booking.status }}</td>
+            <td>INR {{ booking.payment_set.first.amount|default:booking.schedule.price }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

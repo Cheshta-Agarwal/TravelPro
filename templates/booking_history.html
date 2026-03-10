@@ -1,64 +1,77 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block title %}Booking History | TravelPro{% endblock %}
 
 {% block content %}
+<style>
+    .tp-hero-history {
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.88), rgba(14, 165, 165, 0.72));
+    }
+</style>
 
-<div class="container mt-5">
-    <h2>Your Booking History</h2>
+<div class="tp-shell">
+    <div class="tp-hero-slim tp-hero-history mb-4">
+        <span class="tp-badge">Your bookings</span>
+        <h1 class="tp-title mt-3">Booking History</h1>
+        <p class="tp-lead mb-0">Review past trips, download tickets, or cancel upcoming rides.</p>
+    </div>
 
-    <table class="table table-hover shadow-sm mt-3">
-        <thead class="table-dark">
-            <tr>
-                <th>Booking ID</th>
-                <th>Bus & Route</th>
-                <th>Travel Date</th>
-                <th>Seat</th>
-                <th>Amount</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for booking in bookings %}
-            <tr>
-                <td>#{{ booking.id }}</td>
-                <td>
-                    <strong>{{ booking.schedule.bus.bus_number }}</strong><br>
-                    {{ booking.schedule.route.source }} to {{ booking.schedule.route.destination }}
-                </td>
-                <td>{{ booking.schedule.departure_time|date:"D, d M Y" }}</td>
-                <td>{{ booking.seat.seat_number }}</td>
-                <td>₹{{ booking.schedule.price }}</td>
-                <td>
-                    <span
-                        class="badge {% if booking.status == 'Confirmed' %}bg-success{% else %}bg-secondary{% endif %}">
-                        {{ booking.status }}
-                    </span>
-                </td>
-                <td>
-    {% if booking.status == 'Confirmed' %}
-        <a href="{% url 'generate_invoice' booking.id %}" class="btn btn-sm btn-primary">Download</a>
-        
-        <a href="{% url 'cancel_booking' booking.id %}" 
-           class="btn btn-sm btn-danger" 
-           onclick="return confirm('Are you sure you want to cancel this booking?');">
-           Cancel booking
-        </a>
-    {% elif booking.status == 'Cancelled' %}
-        <span class="badge bg-danger">Cancelled</span>
-    {% endif %}
-</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6" class="text-center">
-                    You haven't made any bookings yet.
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="card tp-card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Booking ID</th>
+                            <th>Bus and Route</th>
+                            <th>Travel Date</th>
+                            <th>Seat</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in bookings %}
+                        <tr>
+                            <td>#{{ booking.id }}</td>
+                            <td>
+                                <strong>{{ booking.schedule.bus.bus_number }}</strong><br>
+                                {{ booking.schedule.route.source }} to {{ booking.schedule.route.destination }}
+                            </td>
+                            <td>{{ booking.schedule.departure_time|date:"D, d M Y" }}</td>
+                            <td>{{ booking.seat.seat_number }}</td>
+                            <td>INR {{ booking.payment_set.first.amount|default:booking.schedule.price }}</td>
+                            <td>
+                                <span
+                                    class="badge {% if booking.status == 'Confirmed' %}bg-success{% else %}bg-secondary{% endif %}">
+                                    {{ booking.status }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if booking.status == 'Confirmed' %}
+                                <a href="{% url 'generate_invoice' booking.id %}" class="btn btn-sm btn-primary">Download</a>
+                                <a href="{% url 'cancel_booking' booking.id %}"
+                                    class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('Are you sure you want to cancel this booking?');">
+                                    Cancel booking
+                                </a>
+                                {% elif booking.status == 'Cancelled' %}
+                                <span class="badge bg-danger">Cancelled</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                You have not made any bookings yet.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
-
 {% endblock %}

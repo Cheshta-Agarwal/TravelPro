@@ -1,17 +1,19 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.views.generic import TemplateView
-from django.db.models import Count, Sum, CharField, BooleanField
 from django.apps import apps
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from django.urls import reverse_lazy, reverse
 from django.contrib import messages
-from django.db.models import Prefetch
-from .forms import BusForm, RouteForm, ScheduleForm
-
 from django.contrib.auth import get_user_model
-from django.views.decorators.http import require_POST
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.db import transaction
+from django.db.models import Sum, CharField, Prefetch
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse_lazy, reverse
+from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DeleteView
+from django.views.decorators.http import require_POST
+from reports import get_admin_dashboard_stats
+from decimal import Decimal
+from .forms import BusForm, RouteForm, ScheduleForm, StopFormSet
+
+UserModel = get_user_model()
 
 class AdminDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
 	template_name = "administrator/dashboard.html"
@@ -23,9 +25,10 @@ class AdminDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
 		context = super().get_context_data(**kwargs)
 
 		# Total users
-		UserModel = get_user_model()
 		context['total_users'] = UserModel.objects.count()
 
+		#Total booking 
+		context['stats'] = get_admin_dashboard_stats()
 		# Total buses and routes (from busop app)
 		try:
 			Bus = apps.get_model('busop', 'Bus')
@@ -162,15 +165,29 @@ class RouteListView(StaffRequiredMixin, ListView):
 
 
 class RouteCreateView(StaffRequiredMixin, CreateView):
-	form_class = RouteForm
-	template_name = 'administrator/route_form.html'
-	success_url = reverse_lazy('administrator:route_list')
+    model = apps.get_model('busop', 'Route')
+    form_class = RouteForm
+    template_name = 'administrator/route_form.html'
+    success_url = reverse_lazy('administrator:route_list')
 
-	def form_valid(self, form):
-		response = super().form_valid(form)
-		messages.success(self.request, 'Route created successfully.')
-		return response
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        if self.request.POST:
+            data['stops'] = StopFormSet(self.request.POST)
+        else:
+            data['stops'] = StopFormSet()
+        return data
 
+    def form_valid(self, form):
+        context = self.get_context_data()
+        stops = context['stops']
+        with transaction.atomic():
+            self.object = form.save()
+            if stops.is_valid():
+                stops.instance = self.object
+                stops.save()
+        messages.success(self.request, 'Route and Stops created successfully.')
+        return super().form_valid(form)
 
 class RouteUpdateView(StaffRequiredMixin, UpdateView):
 	form_class = RouteForm
@@ -224,7 +241,6 @@ class ScheduleDeleteView(StaffRequiredMixin, DeleteView):
     def get_queryset(self):
         Schedule = apps.get_model('busop', 'Schedule')
         return Schedule.objects.all()
-
 
 class UserListView(StaffRequiredMixin, ListView):
 	template_name = 'administrator/user_list.html'
@@ -354,3 +370,51 @@ def delete_user_view(request, pk):
 	target.save(update_fields=['is_active'])
 	messages.success(request, f"User '{target.username}' deactivated (soft delete).")
 	return redirect(reverse('administrator:user_list'))
+
+# Add this to administrator/views.py
+class AdminBookingListView(StaffRequiredMixin, ListView):
+    template_name = 'administrator/booking_list.html'
+    context_object_name = 'bookings'
+
+    @staticmethod
+    def _resolve_drop_off(booking):
+        payment = booking.payment_set.first()
+        destination = booking.schedule.route.destination
+        if not payment:
+            return destination
+
+        base_price = booking.schedule.price.quantize(Decimal("1.00"))
+        paid_amount = payment.amount.quantize(Decimal("1.00"))
+        if paid_amount == base_price:
+            return destination
+
+        discount_map = {
+            1: Decimal("0.60"),
+            2: Decimal("0.75"),
+        }
+        default_discount = Decimal("0.90")
+
+        for stop in booking.schedule.route.stops.all():
+            factor = discount_map.get(stop.stop_order, default_discount)
+            expected = (base_price * factor).quantize(Decimal("1.00"))
+            if expected == paid_amount:
+                return stop.location_name
+
+        return destination
+
+    def get_queryset(self):
+        Booking = apps.get_model('user', 'Booking')
+        # Only use fields that actually exist in your model
+        queryset = Booking.objects.select_related(
+            'user', 
+            'schedule__route', 
+            'seat'
+        ).prefetch_related(
+            'payment_set',
+            'schedule__route__stops'
+        ).all().order_by('-id')
+
+        for booking in queryset:
+            booking.display_drop_off = self._resolve_drop_off(booking)
+
+        return queryset

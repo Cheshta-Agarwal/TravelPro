@@ -2,36 +2,45 @@
 {% block title %}Verify OTP | TravelPro{% endblock %}
 
 {% block content %}
-<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
-    <div class="card p-4" style="width: 420px; border-radius: 16px;">
-        <h3 class="text-center mb-3">Verify OTP</h3>
-        <p class="text-center text-muted mb-4">
-            Enter the 6-digit OTP sent to your email
-        </p>
+<div class="tp-shell">
+    <div class="tp-hero-slim mb-4">
+        <span class="tp-badge">Verify and continue</span>
+        <h1 class="tp-title mt-3">Enter your OTP</h1>
+        <p class="tp-lead mb-0">Use the 6-digit code we sent to your email.</p>
+    </div>
 
-        {% if error %}
-        <div class="alert alert-danger">
-            {{ error }}
-        </div>
-        {% endif %}
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-8">
+            <div class="card tp-card">
+                <div class="card-body">
+                    <h3 class="mb-3">Verify OTP</h3>
 
-        <form method="post">
-            {% csrf_token %}
+                    {% if error %}
+                    <div class="alert alert-danger">
+                        {{ error }}
+                    </div>
+                    {% endif %}
 
-            <div class="mb-3">
-                <label class="form-label">OTP</label>
-                <input type="text" name="otp" class="form-control" placeholder="6-digit OTP" required>
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label">OTP</label>
+                            <input type="text" name="otp" class="form-control" placeholder="6-digit OTP" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            Verify and Login
+                        </button>
+                    </form>
+
+                    <p class="text-center mt-3 mb-0">
+                        Did not receive an OTP?
+                        <a href="{% url 'otp_login' %}">Resend OTP</a>
+                    </p>
+                </div>
             </div>
-
-            <button type="submit" class="btn btn-primary w-100">
-                Verify & Login
-            </button>
-        </form>
-
-        <p class="text-center mt-3 mb-0">
-            Didn’t receive OTP?
-            <a href="{% url 'otp_login' %}">Resend OTP</a>
-        </p>
+        </div>
     </div>
 </div>
 {% endblock %}

@@ -25,3 +25,14 @@ class ScheduleForm(forms.ModelForm):
             'departure_time': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
             'arrival_time': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
         }
+
+from django.forms import inlineformset_factory
+from busop.models import Route, Stop
+
+# This creates a formset to add multiple stops to a single route
+StopFormSet = inlineformset_factory(
+    Route, Stop, 
+    fields=['location_name', 'stop_order'], 
+    extra=3, 
+    can_delete=True
+)
